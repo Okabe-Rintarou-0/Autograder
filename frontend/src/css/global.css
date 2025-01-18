@@ -1,0 +1,21 @@
+svg {
+    vertical-align: baseline;
+}
+
+.ant-table-thead>tr>th {
+    white-space: nowrap;
+}
+
+.basic-layout {
+    margin: auto;
+    max-width: 800px;
+    min-height: 100vh !important;
+}
+
+.card-container {
+    margin: 20px;
+}
+
+.footer {
+    text-align: center;
+}
