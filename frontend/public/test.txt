@@ -1,0 +1,89 @@
+HELP.md  __MACOSX  mvnw  mvnw.cmd  pom.xml  src  target
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--------------------------< [0;36mcom.example:demo[0;1m >--------------------------[m
+[[1;34mINFO[m] [1mBuilding demo 0.0.1-SNAPSHOT[m
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-clean-plugin:3.4.0:clean[m [1m(default-clean)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] Deleting /app/target
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:resources[m [1m(default-resources)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] Copying 1 resource from src/main/resources to target/classes
+[[1;34mINFO[m] Copying 0 resource from src/main/resources to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.13.0:compile[m [1m(default-compile)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] Recompiling the module because of [1mchanged source code[m.
+[[1;34mINFO[m] Compiling 2 source files with javac [debug parameters release 17] to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:testResources[m [1m(default-testResources)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /app/src/test/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.13.0:testCompile[m [1m(default-testCompile)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] Recompiling the module because of [1mchanged dependency[m.
+[[1;34mINFO[m] Compiling 1 source file with javac [debug parameters release 17] to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-surefire-plugin:3.5.2:test[m [1m(default-test)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[[1;34mINFO[m] 
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m]  T E S T S
+[[1;34mINFO[m] -------------------------------------------------------
+[[1;34mINFO[m] Running com.example.demo.[1mDemoApplicationTests[m
+15:41:06.167 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.demo.DemoApplicationTests]: DemoApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:41:06.246 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.DemoApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2025-01-18T15:41:06.548Z  INFO 75 --- [demo] [           main] com.example.demo.DemoApplicationTests    : Starting DemoApplicationTests using Java 17.0.2 with PID 75 (started by root in /app)
+2025-01-18T15:41:06.548Z  INFO 75 --- [demo] [           main] com.example.demo.DemoApplicationTests    : No active profile set, falling back to 1 default profile: "default"
+2025-01-18T15:41:07.448Z  INFO 75 --- [demo] [           main] com.example.demo.DemoApplicationTests    : Started DemoApplicationTests in 1.092 seconds (process running for 1.712)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[[1;34mINFO[m] [1;32mTests run: [0;1;32m1[m, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.925 s -- in com.example.demo.[1mDemoApplicationTests[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] Results:
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1;32mTests run: 1, Failures: 0, Errors: 0, Skipped: 0[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-jar-plugin:3.4.2:jar[m [1m(default-jar)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] Building jar: /app/target/demo-0.0.1-SNAPSHOT.jar
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mspring-boot-maven-plugin:3.4.1:repackage[m [1m(repackage)[m @ [36mdemo[0;1m ---[m
+[[1;34mINFO[m] Replacing main artifact /app/target/demo-0.0.1-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[[1;34mINFO[m] The original artifact has been renamed to /app/target/demo-0.0.1-SNAPSHOT.jar.original
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;32mBUILD SUCCESS[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  4.460 s
+[[1;34mINFO[m] Finished at: 2025-01-18T15:41:08Z
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[0m[0m
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+[32m :: Spring Boot :: [39m              [2m (v3.4.1)[0;39m
+
+[2m2025-01-18T15:41:09.196Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mcom.example.demo.DemoApplication        [0;39m [2m:[0;39m Starting DemoApplication v0.0.1-SNAPSHOT using Java 17.0.2 with PID 20 (/app/target/demo-0.0.1-SNAPSHOT.jar started by root in /app)
+[2m2025-01-18T15:41:09.197Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mcom.example.demo.DemoApplication        [0;39m [2m:[0;39m No active profile set, falling back to 1 default profile: "default"
+[2m2025-01-18T15:41:09.744Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat initialized with port 8080 (http)
+[2m2025-01-18T15:41:09.750Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mo.apache.catalina.core.StandardService  [0;39m [2m:[0;39m Starting service [Tomcat]
+[2m2025-01-18T15:41:09.751Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mo.apache.catalina.core.StandardEngine   [0;39m [2m:[0;39m Starting Servlet engine: [Apache Tomcat/10.1.34]
+[2m2025-01-18T15:41:09.767Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring embedded WebApplicationContext
+[2m2025-01-18T15:41:09.768Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mw.s.c.ServletWebServerApplicationContext[0;39m [2m:[0;39m Root WebApplicationContext: initialization completed in 531 ms
+[2m2025-01-18T15:41:10.014Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat started on port 8080 (http) with context path '/'
+[2m2025-01-18T15:41:10.027Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [           main] [0;39m[36mcom.example.demo.DemoApplication        [0;39m [2m:[0;39m Started DemoApplication in 1.17 seconds (process running for 1.408)
+[2m2025-01-18T15:41:10.645Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [nio-8080-exec-1] [0;39m[36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m:[0;39m Initializing Spring DispatcherServlet 'dispatcherServlet'
+[2m2025-01-18T15:41:10.645Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Initializing Servlet 'dispatcherServlet'
+[2m2025-01-18T15:41:10.646Z[0;39m [32m INFO[0;39m [35m20[0;39m [2m--- [demo] [nio-8080-exec-1] [0;39m[36mo.s.web.servlet.DispatcherServlet       [0;39m [2m:[0;39m Completed initialization in 1 ms

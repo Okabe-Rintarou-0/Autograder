@@ -4,6 +4,9 @@ import { AppInfo } from "../model/app";
 import { UploadOutlined } from "@ant-design/icons";
 import { submitApp } from "../service/submit";
 import useMessage from "antd/es/message/useMessage";
+import React, { useEffect, useState } from "react";
+import { LazyLog } from "@melloware/react-logviewer";
+import testLog from "/test.txt"
 
 const supportedJDKVersions = [11, 17]
 const { Option } = Select;
@@ -11,6 +14,7 @@ const { Option } = Select;
 export default function SubmitPage() {
     const [form] = Form.useForm<AppInfo>();
     const [messageApi, contextHolder] = useMessage();
+    const [data, setData] = useState<string>("");
     const handleSubmit = async (appInfo: AppInfo) => {
         console.log(appInfo);
         try {
@@ -21,6 +25,10 @@ export default function SubmitPage() {
             messageApi.error(`上传失败：${e}`)
         }
     }
+
+    useEffect(() => {
+        fetch(testLog).then(t => t.text().then(setData))
+    }, [])
 
     const getFile = (e: any) => {
         if (Array.isArray(e)) {
@@ -83,6 +91,13 @@ export default function SubmitPage() {
                         </Button>
                     </Form.Item>
                 </Form>
+                <LazyLog caseInsensitive
+                    enableHotKeys
+                    enableSearch
+                    extraLines={1}
+                    height="520"
+                    selectableLines
+                    text={data} />
             </Card>
         </BasicLayout>
     );

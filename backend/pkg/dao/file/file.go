@@ -3,6 +3,7 @@ package file
 import (
 	"archive/zip"
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -83,4 +84,20 @@ func (d *daoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
 	}
 
 	return nil
+}
+
+func (d *daoImpl) PrepareLogFile(ctx context.Context, info *entity.AppInfo) (io.Writer, io.Writer, error) {
+	logFile := info.GetLogFile()
+	if logFile == nil {
+		return nil, nil, fmt.Errorf("nil log file")
+	}
+	stdout, err := logFile.GetStdoutWriter()
+	if err != nil {
+		return nil, nil, err
+	}
+	stderr, err := logFile.GetStderrWriter()
+	if err != nil {
+		return nil, nil, err
+	}
+	return stdout, stderr, nil
 }

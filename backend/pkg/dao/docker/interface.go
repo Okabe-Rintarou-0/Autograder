@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"io"
 
 	"autograder/pkg/entity"
 )
@@ -9,5 +10,5 @@ import (
 type ContainerRemoveFn func() error
 
 type DAO interface {
-	CompileAndRun(ctx context.Context, info *entity.AppInfo) (ContainerRemoveFn, error)
+	CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.Writer) (ContainerRemoveFn, error)
 }

@@ -20,11 +20,17 @@ func NewService(groupDAO *dao.GroupDAO) *serviceImpl {
 func (s *serviceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	err := s.groupDAO.FileDAO.Unzip(ctx, info)
 	if err != nil {
-		logrus.Errorf("[AppRunnerService][RunApp] call ZipDAO.Unzip error %+v", err)
+		logrus.Errorf("[AppRunnerService][RunApp] call FileDAO.Unzip error %+v", err)
 		return err
 	}
 
-	removeFn, err := s.groupDAO.DockerDAO.CompileAndRun(ctx, info)
+	stdout, stderr, err := s.groupDAO.FileDAO.PrepareLogFile(ctx, info)
+	if err != nil {
+		logrus.Errorf("[AppRunnerService][RunApp] call FileDAO.PrepareLogFile error %+v", err)
+		return err
+	}
+
+	removeFn, err := s.groupDAO.DockerDAO.CompileAndRun(ctx, info, stdout, stderr)
 	if err != nil {
 		logrus.Errorf("[AppRunnerService][RunApp] call DockerDAO.CompileAndRun error %+v", err)
 		return err

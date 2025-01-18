@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import SubmitPage from "../page/submit";
+import React from "react";
 
 export default function AppRouter() {
     return <BrowserRouter>

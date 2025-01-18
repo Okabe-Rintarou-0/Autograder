@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -24,6 +25,14 @@ type AppInfo struct {
 	UploadTime         time.Time
 	AuthenticationType AuthenticationType
 	JDKVersion         int32
+}
+
+func (a *AppInfo) GetLogFile() *LogFile {
+	uid := uuid.NewString()
+	return &LogFile{
+		DirPath: path.Join(config.WorkDir, "logs", a.GetFileName()),
+		UUID:    uid,
+	}
 }
 
 func (a *AppInfo) GetFileName() string {

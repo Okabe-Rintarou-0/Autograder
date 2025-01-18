@@ -2,11 +2,13 @@ package docker
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/sirupsen/logrus"
 
 	"autograder/pkg/cli/docker"
@@ -40,7 +42,7 @@ func (d *daoImpl) checkHTTP() bool {
 	return false
 }
 
-func (d *daoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo) (ContainerRemoveFn, error) {
+func (d *daoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.Writer) (ContainerRemoveFn, error) {
 	compileContainerImageName := jdkImageNameMap[info.JDKVersion]
 	if !d.imageReady {
 		err := d.cli.PullImage(ctx, compileContainerImageName)
@@ -73,16 +75,18 @@ func (d *daoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo) (Cont
 	}
 
 	doneCh := make(chan struct{})
+	commands := entity.NewBashCommandsBuilder().
+		NewCommand("cd", "/app").
+		NewCommand("ls").
+		NewCommand("mvn", "clean", "package").
+		NewCommand("java", "-jar", "target/*.jar").
+		Build()
+	reader, err := d.cli.ExecuteContainer(ctx, id, commands)
 	go func() {
-		commands := entity.NewBashCommandsBuilder().
-			NewCommand("cd", "/app").
-			NewCommand("ls").
-			NewCommand("mvn", "clean", "package").
-			NewCommand("java", "-jar", "target/*.jar").
-			Build()
-		err := d.cli.ExecuteContainer(ctx, id, commands)
+		// https://stackoverflow.com/questions/46478169/explain-and-remove-useless-bytes-at-the-start-of-docker-exec-response
+		_, err := stdcopy.StdCopy(stdoutWriter, stderrWriter, reader)
 		if err != nil {
-			logrus.Errorf("[Docker DAO][RunCompileContainer] call client.ExecuteContainer error: %+v", err)
+			logrus.Errorf("[Docker DAO][RunCompileContainer] call io.Copy error: %+v", err)
 		}
 		doneCh <- struct{}{}
 	}()
@@ -107,8 +111,8 @@ func (d *daoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo) (Cont
 			finished = true
 		}
 	}
-
-	return func() error {
+	removeFn := func() error {
 		return d.cli.RemoveContainer(ctx, id)
-	}, nil
+	}
+	return removeFn, nil
 }

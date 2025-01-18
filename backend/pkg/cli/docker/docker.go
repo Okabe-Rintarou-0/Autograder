@@ -3,7 +3,6 @@ package docker
 import (
 	"context"
 	"io"
-	"os"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
@@ -103,31 +102,26 @@ func (c *clientImpl) RunContainer(ctx context.Context, config *entity.DockerCrea
 	return resp.ID, nil
 }
 
-func (c *clientImpl) ExecuteContainer(ctx context.Context, containerId string, commands []string) error {
+func (c *clientImpl) ExecuteContainer(ctx context.Context, containerId string, commands []string) (io.Reader, error) {
 	execConfig := container.ExecOptions{
 		Cmd:          commands,
+		AttachStdin:  true,
+		AttachStderr: true,
 		AttachStdout: true,
-		AttachStderr: false,
-		AttachStdin:  false,
 		Tty:          true,
 	}
 	execResp, err := c.innerCli.ContainerExecCreate(ctx, containerId, execConfig)
 	if err != nil {
 		logrus.Errorf("[Docker client][ExecuteContainer] call innerCli.ContainerExecCreate error %+v", err)
-		return err
+		return nil, err
 	}
 	attachResp, err := c.innerCli.ContainerExecAttach(context.Background(), execResp.ID, container.ExecStartOptions{
 		Detach: false,
 	})
 	if err != nil {
 		logrus.Errorf("[Docker client][ExecuteContainer] call innerCli.ContainerExecAttach error %+v", err)
-		return err
+		return nil, err
 	}
-	defer attachResp.Close()
-	_, err = io.Copy(os.Stdout, attachResp.Reader)
-	if err != nil {
-		logrus.Errorf("[Docker client][ExecuteContainer] call io.Copy error %+v", err)
-		return err
-	}
-	return nil
+
+	return attachResp.Reader, nil
 }

@@ -3,6 +3,8 @@ package docker
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"testing"
 
 	c "github.com/smartystreets/goconvey/convey"
@@ -55,6 +57,7 @@ func TestDockerExecuteContainer(t *testing.T) {
 			// NewCommand("java", "-jar", "target/*.jar").
 			Build()
 		fmt.Println(commands)
-		client.ExecuteContainer(ctx, "test_docker", commands)
+		reader, _ := client.ExecuteContainer(ctx, "test_docker", commands)
+		io.Copy(os.Stdout, reader)
 	})
 }
