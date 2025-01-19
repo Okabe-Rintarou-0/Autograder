@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"autograder/pkg/model/constants"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -128,7 +130,7 @@ func (h *Handler) HandleRunApp(c *gin.Context) {
 		return
 	}
 
-	result, err := h.groupSvc.AppRunnerSvc.SubmitApp(c.Request.Context(), appInfo)
+	result, err := h.groupSvc.TaskSvc.SubmitApp(c.Request.Context(), appInfo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "submit app internal error"})
 		return
@@ -156,7 +158,7 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 
 	userID := c.Value("userID").(uint)
 	logrus.Infof("[Handler][HandleListAppTasks] request page: %s", utils.FormatJsonString(page))
-	resp, err := h.groupSvc.AppRunnerSvc.ListAppTasks(c.Request.Context(), userID, page)
+	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userID, page)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleListAppTasks] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -169,11 +171,12 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 func (h *Handler) HandleGetLog(c *gin.Context) {
 	logType := c.Query("log_type")
 	uuid := c.Query("uuid")
-	if (logType != "stdout" && logType != "stderr") || uuid == "" {
+	if (logType != constants.LogTypeStdout && logType != constants.LogTypeStderr && logType != constants.LogTypeHurlTest) ||
+		uuid == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid param"})
 		return
 	}
-	logReader, err := h.groupSvc.AppRunnerSvc.GetLogFile(c.Request.Context(), uuid, logType)
+	logReader, err := h.groupSvc.TaskSvc.GetLogFile(c.Request.Context(), uuid, logType)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleGetLog] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

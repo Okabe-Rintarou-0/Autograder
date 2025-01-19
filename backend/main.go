@@ -17,18 +17,6 @@ func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
-	// info := &entity.AppInfo{
-	// 	ZipFileName:        "backend.zip",
-	// 	StudentID:          "lucas",
-	// 	UploadTime:         time.Now(),
-	// 	AuthenticationType: entity.ByCookies,
-	// 	JDKVersion:         17,
-	// }
-	// service := apprunner.NewService(dao.NewGroupDAO())
-	// err := service.RunApp(ctx, info)
-	// if err != nil {
-	// 	logrus.Errorf("err: %+v", err)
-	// }
 	r := gin.Default()
 	cfg := config.Instance
 	systemDB, err := mysql.NewDB(cfg.SystemDB)
@@ -48,5 +36,5 @@ func main() {
 		POST("/run", handler.HandleRunApp)
 	r.POST("/api/login", handler.HandleLogin).
 		GET("/api/logs", handler.HandleGetLog)
-	r.Run(":8081")
+	logrus.Fatal(r.Run(":8081"))
 }

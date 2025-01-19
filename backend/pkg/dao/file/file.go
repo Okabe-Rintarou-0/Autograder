@@ -2,6 +2,7 @@ package file
 
 import (
 	"archive/zip"
+	"autograder/pkg/model/constants"
 	"context"
 	"fmt"
 	"io"
@@ -80,15 +81,15 @@ func (d *daoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
 }
 
 func (d *daoImpl) PrepareLogFile(ctx context.Context, info *entity.AppInfo) (io.Writer, io.Writer, error) {
-	logFile := info.GetLogFile()
-	if logFile == nil {
+	logDir := info.GetLogDir()
+	if logDir == nil {
 		return nil, nil, fmt.Errorf("nil log file")
 	}
-	stdout, err := logFile.GetStdoutWriter()
+	stdout, err := logDir.GetWriter(constants.LogTypeStdout)
 	if err != nil {
 		return nil, nil, err
 	}
-	stderr, err := logFile.GetStderrWriter()
+	stderr, err := logDir.GetWriter(constants.LogTypeStderr)
 	if err != nil {
 		return nil, nil, err
 	}

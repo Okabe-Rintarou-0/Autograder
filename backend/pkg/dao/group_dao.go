@@ -18,12 +18,12 @@ type GroupDAO struct {
 	TaskDAO   task.DAO
 }
 
-func NewGroupDAO(systemDB, eBookStoreDB *gorm.DB) *GroupDAO {
+func NewGroupDAO(systemDB, _ *gorm.DB) *GroupDAO {
 	return &GroupDAO{
 		DockerDAO: docker.NewDAO(),
 		FileDAO:   file.NewDao(),
 		HurlDAO:   hurl.NewDAO(),
 		UserDAO:   user.NewDAO(systemDB),
-		TaskDAO:   task.NewDAO(eBookStoreDB),
+		TaskDAO:   task.NewDAO(systemDB),
 	}
 }

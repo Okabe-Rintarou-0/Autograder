@@ -1,0 +1,53 @@
+[
+  {
+    "cookies": [],
+    "entries": [
+      {
+        "asserts": [],
+        "calls": [],
+        "captures": [],
+        "curl_cmd": "curl 'http://localhost:8080/api/echo/SE'",
+        "index": 1,
+        "line": 1,
+        "time": 0
+      }
+    ],
+    "filename": "/Users/lucas/autograder/backend/testcases/testcase0.hurl",
+    "success": false,
+    "time": 1
+  },
+  {
+    "cookies": [],
+    "entries": [
+      {
+        "asserts": [],
+        "calls": [],
+        "captures": [],
+        "curl_cmd": "curl 'http://localhost:8080/api/echo/SE'",
+        "index": 1,
+        "line": 1,
+        "time": 0
+      }
+    ],
+    "filename": "/Users/lucas/autograder/backend/testcases/testcase0.hurl",
+    "success": false,
+    "time": 2
+  },
+  {
+    "cookies": [],
+    "entries": [
+      {
+        "asserts": [],
+        "calls": [],
+        "captures": [],
+        "curl_cmd": "curl 'http://localhost:8080/api/echo/SE'",
+        "index": 1,
+        "line": 1,
+        "time": 0
+      }
+    ],
+    "filename": "/Users/lucas/autograder/backend/testcases/testcase1.hurl",
+    "success": false,
+    "time": 2
+  }
+]

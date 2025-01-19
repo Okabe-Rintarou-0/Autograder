@@ -43,9 +43,9 @@ func (a *AppInfo) ToDBM(status int32) *dbm.AppRunTask {
 	}
 }
 
-func (a *AppInfo) GetLogFile() *LogFile {
+func (a *AppInfo) GetLogDir() *LogDir {
 	userID := strconv.FormatInt(int64(a.User.UserID), 10)
-	return &LogFile{
+	return &LogDir{
 		DirPath: path.Join(config.Instance.WorkDir, "logs", userID),
 		UUID:    a.UUID,
 	}

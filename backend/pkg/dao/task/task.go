@@ -30,7 +30,7 @@ func (d *daoImpl) FindByUUID(ctx context.Context, UUID string) (*dbm.AppRunTask,
 
 func (d *daoImpl) Save(ctx context.Context, tasks ...*dbm.AppRunTask) error {
 	t := query.Use(d.db).AppRunTask
-	return t.WithContext(ctx).Save(tasks...)
+	return t.WithContext(ctx).Clauses(&clause.OnConflict{UpdateAll: true}).Save(tasks...)
 }
 
 func (d *daoImpl) SaveIfNotExist(ctx context.Context, tasks ...*dbm.AppRunTask) error {
@@ -44,16 +44,7 @@ func (d *daoImpl) ListUserTasksByPage(ctx context.Context, userID uint, page *db
 	t := query.Use(d.db).AppRunTask
 	offset := (page.PageNo - 1) * page.PageSize
 	var total int64
-	var models []*dbm.AppRunTask
-	err := d.db.WithContext(ctx).
-		Where(t.UserID.Eq(userID)).
-		Offset(offset).
-		Limit(page.PageSize).
-		Order(t.ID.Asc()).
-		Find(&models).
-		Limit(-1).
-		Count(&total).
-		Error
+	models, total, err := t.WithContext(ctx).Where(t.UserID.Eq(userID)).Order(t.ID.Desc()).FindByPage(offset, page.PageSize)
 	if err != nil {
 		return nil, err
 	}

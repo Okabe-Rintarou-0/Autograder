@@ -17,4 +17,6 @@ type AppRunTask struct {
 	UUID   string `gorm:"type:varchar(36);uniqueIndex"`
 	UserID uint
 	Status int32
+	Pass   int32
+	Total  int32
 }

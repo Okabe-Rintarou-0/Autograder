@@ -1,4 +1,4 @@
-package apprunner
+package task
 
 import (
 	"context"
@@ -15,17 +15,8 @@ func (s *serviceImpl) dealWithApp(ctx context.Context, info *entity.AppInfo) {
 	if info == nil {
 		return
 	}
+	
 	model := info.ToDBM(dbm.AppRunTaskStatusRunning)
-
-	defer func() {
-		if err != nil {
-			model.Status = dbm.AppRunTaskStatusFail
-		} else {
-			model.Status = dbm.AppRunTaskStatusSucceed
-		}
-		_ = s.groupDAO.TaskDAO.Save(ctx, model)
-	}()
-
 	err = s.groupDAO.TaskDAO.Save(ctx, model)
 	if err != nil {
 		logrus.Infof("[App Runner Service][worker] saving task failed, error %+v", err)

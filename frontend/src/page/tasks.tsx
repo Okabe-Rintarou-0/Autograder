@@ -1,6 +1,6 @@
-import { Button, Card, Space, Table, Tabs, TabsProps, Tag } from "antd";
+import { Card, Space, Table, Tabs, Tag } from "antd";
 import BasicLayout from "../components/layout";
-import { listTasks, readLog, submitApp } from "../service/task";
+import { listTasks } from "../service/task";
 import useMessage from "antd/es/message/useMessage";
 import React, { useEffect, useState } from "react";
 import { LazyLog } from "@melloware/react-logviewer";
@@ -8,15 +8,17 @@ import { AppRunTask } from "../model/user";
 import { AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting } from "../model/app";
 
 export default function TaskPage() {
+    const pageSize = 20;
     const [messageApi, contextHolder] = useMessage();
-    const pageSize = 20
     const [pageNo, setPageNo] = useState<number>(1);
+    const [total, setTotal] = useState<number>(0);
     const [tasks, setTasks] = useState<AppRunTask[]>([]);
 
     const getTasks = async () => {
         try {
             const resp = await listTasks(pageNo, pageSize);
-            setTasks(resp.data)
+            setTasks(resp.data);
+            setTotal(resp.total);
         } catch (e) {
             console.log(e);
         }
@@ -52,9 +54,9 @@ export default function TaskPage() {
     }];
 
     const getTabs = (task: AppRunTask) => {
-        return ["stdout", "stderr"].map(logType => ({
+        return ["stdout", "stderr", "hurl"].map(logType => ({
             key: logType,
-            label: logType + '日志',
+            label: (logType === "hurl" ? "测试" : logType) + '日志',
             children: <LazyLog caseInsensitive
                 enableHotKeys
                 enableSearch
@@ -71,6 +73,16 @@ export default function TaskPage() {
             <Card className="card-container">
                 <Table columns={columns} dataSource={tasks}
                     rowKey="uuid"
+                    pagination={{
+                        pageSize,
+                        total,
+                        current: pageNo,
+                        onChange: (pageNo: number) => {
+                            console.log(pageNo);
+                            setPageNo(pageNo);
+                            getTasks();
+                        }
+                    }}
                     expandable={{
                         expandedRowRender: (task) => (
                             <Space direction="vertical" size={"large"} style={{ width: "100%" }}>
