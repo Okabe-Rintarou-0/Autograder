@@ -1,0 +1,24 @@
+WorkDir: "/path/to/work_dir"
+TestcasesDir: "/path/to/testcases/"
+
+SystemDB:
+  Username: root
+  Password: "123456"
+  Host: 127.0.0.1
+  Port: 3306
+  Database: autograder
+  Timeout: 10s
+  ShowSql: true
+
+EBookStoreDB:
+  Username: root
+  Password: "123456"
+  Host: 127.0.0.1
+  Port: 3306
+  Database: ebookstore
+  Timeout: 10s
+  ShowSql: true
+
+Token:
+  Secret: "Secret"
+  ExpireAfter: "72h"

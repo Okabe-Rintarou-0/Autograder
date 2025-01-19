@@ -6,11 +6,19 @@ import { Header } from 'antd/lib/layout/layout';
 import NavBar from './navbar';
 const { Content, Footer, Sider } = Layout;
 
-export default function BasicLayout({ children }: React.PropsWithChildren) {
+export interface BasicLayoutProps {
+    noSider?: boolean;
+}
+
+export default function BasicLayout({ children, noSider }: React.PropsWithChildren<BasicLayoutProps>) {
     const items = [{
         key: 'submit',
         icon: <CloudUploadOutlined />,
         label: <Link to={'/submit'}> 上传任务 </Link>,
+    }, {
+        key: 'tasks',
+        icon: <CloudUploadOutlined />,
+        label: <Link to={'/tasks'}> 查看任务 </Link>,
     }];
 
     const parts = useLocation().pathname.split('/');
@@ -25,9 +33,9 @@ export default function BasicLayout({ children }: React.PropsWithChildren) {
             <Layout
                 style={{ marginTop: "50px", padding: '24px 0', background: colorBgContainer, borderRadius: borderRadiusLG }}
             >
-                <Sider style={{ background: colorBgContainer }} width={200} >
+                {!noSider && <Sider style={{ background: colorBgContainer }} width={200} >
                     <Menu defaultSelectedKeys={selectedKeys} items={items} mode="inline" style={{ height: '100%' }} />
-                </Sider>
+                </Sider>}
                 <Content style={{ padding: '0 24px', minHeight: 280 }}>{children}</Content>
             </Layout>
         </Content>

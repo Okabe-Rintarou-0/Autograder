@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 
+	"autograder/pkg/model/entity"
+
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
@@ -11,8 +13,6 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/moby/moby/client"
 	"github.com/sirupsen/logrus"
-
-	"autograder/pkg/entity"
 )
 
 type clientImpl struct {

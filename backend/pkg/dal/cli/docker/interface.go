@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"autograder/pkg/entity"
+	"autograder/pkg/model/entity"
 )
 
 type Client interface {

@@ -9,7 +9,7 @@ import (
 
 	c "github.com/smartystreets/goconvey/convey"
 
-	"autograder/pkg/entity"
+	"autograder/pkg/model/entity"
 )
 
 const (

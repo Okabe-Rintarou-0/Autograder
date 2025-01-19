@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"path"
 	"path/filepath"
@@ -9,18 +10,29 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 
 	"autograder/pkg/config"
-	"autograder/pkg/entity"
-	apprunner "autograder/pkg/service/app_runner"
+	"autograder/pkg/messages"
+	"autograder/pkg/model/entity"
+	"autograder/pkg/model/request"
+	"autograder/pkg/model/response"
+	"autograder/pkg/service"
+	"autograder/pkg/utils"
 )
 
 type Handler struct {
-	appRunnerSvc apprunner.Service
+	groupSvc *service.GroupService
 }
 
-func NewHandler(appRunnerSvc apprunner.Service) *Handler {
-	return &Handler{appRunnerSvc}
+const (
+	DefaultPageNo   = 0
+	DefaultPageSize = 10
+)
+
+func NewHandler(groupSvc *service.GroupService) *Handler {
+	return &Handler{groupSvc}
 }
 
 func getFormIntAttr(c *gin.Context, key string) (int64, error) {
@@ -30,6 +42,23 @@ func getFormIntAttr(c *gin.Context, key string) (int64, error) {
 		return 0, err
 	}
 	return attr, nil
+}
+
+func getPage(c *gin.Context) *entity.Page {
+	pageNoStr := c.Query("page_no")
+	pageSizeStr := c.Query("page_size")
+	pageNo, err := strconv.ParseInt(pageNoStr, 10, 64)
+	if err != nil {
+		return nil
+	}
+	pageSize, err := strconv.ParseInt(pageSizeStr, 10, 64)
+	if err != nil {
+		return nil
+	}
+	return &entity.Page{
+		PageSize: int(pageSize),
+		PageNo:   int(pageNo),
+	}
 }
 
 func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
@@ -45,7 +74,7 @@ func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
 		return nil, err
 	}
 
-	savePath := path.Join(config.WorkDir, file.Filename)
+	savePath := path.Join(config.Instance.WorkDir, file.Filename)
 	if err := c.SaveUploadedFile(file, savePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return nil, err
@@ -61,7 +90,15 @@ func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
 		return nil, err
 	}
 
+	userID := c.Value("userID").(uint)
+	user, err := h.groupSvc.UserSvc.GetUser(c.Request.Context(), userID)
+	if err != nil {
+		return nil, err
+	}
+
 	info := &entity.AppInfo{
+		User:               user,
+		UUID:               uuid.NewString(),
 		ZipFileName:        file.Filename,
 		UploadTime:         time.Now(),
 		AuthenticationType: entity.AuthenticationType(authenticationType),
@@ -76,13 +113,93 @@ func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
 	return info, nil
 }
 
+func (h *Handler) HandleGetMe(c *gin.Context) {
+	userID := c.Value("userID").(uint)
+	user, err := h.groupSvc.UserSvc.GetUser(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
+	}
+	c.JSON(http.StatusOK, user)
+}
+
 func (h *Handler) HandleRunApp(c *gin.Context) {
 	appInfo, err := h.validateParams(c)
 	if appInfo == nil || err != nil {
 		return
 	}
 
-	h.appRunnerSvc.RunApp(c.Request.Context(), appInfo)
+	result, err := h.groupSvc.AppRunnerSvc.SubmitApp(c.Request.Context(), appInfo)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "submit app internal error"})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully"})
+	if result == entity.SubmitAppResultSystemBusy {
+		c.JSON(http.StatusOK, &response.SubmitAppResponse{
+			BaseResp: response.NewErrorBaseResp(messages.SystemBusy, messages.ErrCodeCommon),
+		})
+	} else if result == entity.SubmitAppResultSucceed {
+		c.JSON(http.StatusOK, &response.SubmitAppResponse{
+			BaseResp: response.NewSucceedBaseResp(messages.SubmitSucceed),
+		})
+	}
+}
+
+func (h *Handler) HandleListAppTasks(c *gin.Context) {
+	page := getPage(c)
+	if page == nil {
+		page = &entity.Page{
+			PageSize: DefaultPageSize,
+			PageNo:   DefaultPageNo,
+		}
+	}
+
+	userID := c.Value("userID").(uint)
+	logrus.Infof("[Handler][HandleListAppTasks] request page: %s", utils.FormatJsonString(page))
+	resp, err := h.groupSvc.AppRunnerSvc.ListAppTasks(c.Request.Context(), userID, page)
+	if err != nil {
+		logrus.Errorf("[Handler][HandleListAppTasks] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) HandleGetLog(c *gin.Context) {
+	logType := c.Query("log_type")
+	uuid := c.Query("uuid")
+	if (logType != "stdout" && logType != "stderr") || uuid == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid param"})
+		return
+	}
+	logReader, err := h.groupSvc.AppRunnerSvc.GetLogFile(c.Request.Context(), uuid, logType)
+	if err != nil {
+		logrus.Errorf("[Handler][HandleGetLog] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	if _, err = io.Copy(c.Writer, logReader); err != nil {
+		logrus.Errorf("[Handler][HandleGetLog] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+}
+
+func (h *Handler) HandleLogin(c *gin.Context) {
+	identifier := c.PostForm("identifier")
+	password := c.PostForm("password")
+	req := request.LoginRequest{
+		Identifier: identifier,
+		Password:   password,
+	}
+	logrus.Infof("[Handler][HandleLogin] request: %s", utils.FormatJsonString(req))
+	resp, err := h.groupSvc.UserSvc.Login(c.Request.Context(), &req)
+	if err != nil {
+		logrus.Errorf("[Handler][HandleLogin] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }

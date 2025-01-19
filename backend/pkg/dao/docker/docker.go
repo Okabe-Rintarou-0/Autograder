@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"autograder/pkg/dal/cli/docker"
+	"autograder/pkg/model/entity"
+
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/sirupsen/logrus"
-
-	"autograder/pkg/cli/docker"
-	"autograder/pkg/entity"
 )
 
 var (
@@ -61,7 +61,7 @@ func (d *daoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 	cachePath := filepath.Join(homeDir, "/.m2/repository")
 	id, err := d.cli.RunContainer(ctx, &entity.DockerCreateConfig{
 		ImageName:     compileContainerImageName,
-		ContainerName: info.GetUUID(),
+		ContainerName: info.UUID,
 		PortBindings:  map[string]string{"8080": "8080"},
 		Commands:      []string{"/bin/bash"},
 		VolumeBindings: map[string]string{

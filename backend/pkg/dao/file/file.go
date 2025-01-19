@@ -10,8 +10,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"autograder/pkg/cli/docker"
-	"autograder/pkg/entity"
+	"autograder/pkg/dal/cli/docker"
+	"autograder/pkg/model/entity"
 )
 
 type daoImpl struct {
@@ -23,16 +23,9 @@ func NewDao() *daoImpl {
 	return &daoImpl{}
 }
 
-func (d *daoImpl) removeAll(path string) error {
-	return filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return os.RemoveAll(path)
-		}
-		return os.Remove(path)
-	})
+func (d *daoImpl) Cleanup(ctx context.Context, info *entity.AppInfo) error {
+	appDir := info.AppPath()
+	return os.RemoveAll(appDir)
 }
 
 func (d *daoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
@@ -44,7 +37,7 @@ func (d *daoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
 	defer r.Close()
 
 	appDir := info.AppPath()
-	_ = d.removeAll(appDir)
+	_ = os.RemoveAll(appDir)
 	if err := os.MkdirAll(appDir, 0755); err != nil {
 		logrus.Errorf("[Unzip DAO][Unzip] call os.MkdirAll error %+v", err)
 		return err

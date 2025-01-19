@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/sirupsen/logrus"
-
 	"autograder/pkg/config"
+
+	"github.com/sirupsen/logrus"
 )
 
 type daoImpl struct{}
@@ -17,7 +17,7 @@ func NewDAO() *daoImpl {
 }
 
 func (d *daoImpl) RunAllTests(ctx context.Context) error {
-	cmd := exec.Command("hurl", "--test", config.TestcasesDir)
+	cmd := exec.Command("hurl", "--test", config.Instance.TestcasesDir)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

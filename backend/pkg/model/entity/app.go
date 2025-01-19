@@ -1,37 +1,53 @@
 package entity
 
 import (
-	"fmt"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
-
 	"autograder/pkg/config"
+	"autograder/pkg/model/dbm"
 	"autograder/pkg/utils"
 )
 
-type AuthenticationType int
+type (
+	AuthenticationType int
+	SubmitAppResult    int
+)
 
 const (
 	ByCookies AuthenticationType = 1
 	ByToken   AuthenticationType = 2
+
+	SubmitAppResultSucceed    = 0
+	SubmitAppResultSystemBusy = 1
+	SubmitAppResultSystemErr  = 2
 )
 
 type AppInfo struct {
+	User               *User
+	UUID               string
 	ZipFileName        string
 	UploadTime         time.Time
 	AuthenticationType AuthenticationType
 	JDKVersion         int32
 }
 
+func (a *AppInfo) ToDBM(status int32) *dbm.AppRunTask {
+	return &dbm.AppRunTask{
+		UUID:   a.UUID,
+		UserID: a.User.UserID,
+		Status: status,
+	}
+}
+
 func (a *AppInfo) GetLogFile() *LogFile {
-	uid := uuid.NewString()
+	userID := strconv.FormatInt(int64(a.User.UserID), 10)
 	return &LogFile{
-		DirPath: path.Join(config.WorkDir, "logs", a.GetFileName()),
-		UUID:    uid,
+		DirPath: path.Join(config.Instance.WorkDir, "logs", userID),
+		UUID:    a.UUID,
 	}
 }
 
@@ -41,22 +57,6 @@ func (a *AppInfo) GetFileName() string {
 		return parts[0]
 	}
 	return ""
-}
-
-func (a *AppInfo) GetStudentName() string {
-	parts := strings.Split(a.GetFileName(), "_")
-	if len(parts) != 2 {
-		return ""
-	}
-	return parts[0]
-}
-
-func (a *AppInfo) GetStudentID() string {
-	parts := strings.Split(a.GetFileName(), "_")
-	if len(parts) != 2 {
-		return ""
-	}
-	return parts[1]
 }
 
 func (a *AppInfo) Validate() bool {
@@ -75,17 +75,13 @@ func (a *AppInfo) Validate() bool {
 }
 
 func (a *AppInfo) AppPath() string {
-	path := filepath.Join(config.WorkDir, a.GetFileName())
+	path := filepath.Join(config.Instance.WorkDir, a.GetFileName())
 	return path
 }
 
 func (a *AppInfo) ZipFilePath() string {
-	path := filepath.Join(config.WorkDir, a.ZipFileName)
+	path := filepath.Join(config.Instance.WorkDir, a.ZipFileName)
 	return path
-}
-
-func (a *AppInfo) GetUUID() string {
-	return fmt.Sprintf("%s_%s", a.GetStudentID(), uuid.NewString())
 }
 
 func (a *AppInfo) UseCookies() bool {

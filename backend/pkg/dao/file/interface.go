@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"autograder/pkg/entity"
+	"autograder/pkg/model/entity"
 )
 
 type ContainerRemoveFn func() error
@@ -12,5 +12,5 @@ type ContainerRemoveFn func() error
 type DAO interface {
 	Unzip(ctx context.Context, info *entity.AppInfo) error
 	PrepareLogFile(ctx context.Context, info *entity.AppInfo) (io.Writer, io.Writer, error)
-	// RemoveDir(ctx context.Context) error
+	Cleanup(ctx context.Context, info *entity.AppInfo) error
 }
