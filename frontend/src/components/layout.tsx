@@ -1,23 +1,26 @@
-import React from 'react';
-import { CloudUploadOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { CloudUploadOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { Layout, Menu, Space, theme } from 'antd';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from 'antd/lib/layout/layout';
 import NavBar from './navbar';
+import { User } from '../model/user';
+import { getMe } from '../service/user';
 const { Content, Footer, Sider } = Layout;
 
 export interface BasicLayoutProps {
     noSider?: boolean;
+    me?: User;
 }
 
-export default function BasicLayout({ children, noSider }: React.PropsWithChildren<BasicLayoutProps>) {
+export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<BasicLayoutProps>) {
     const items = [{
         key: 'submit',
         icon: <CloudUploadOutlined />,
         label: <Link to={'/submit'}> 上传任务 </Link>,
     }, {
         key: 'tasks',
-        icon: <CloudUploadOutlined />,
+        icon: <UnorderedListOutlined />,
         label: <Link to={'/tasks'}> 查看任务 </Link>,
     }];
 
@@ -28,7 +31,7 @@ export default function BasicLayout({ children, noSider }: React.PropsWithChildr
     } = theme.useToken();
 
     return <Layout>
-        <Header><NavBar /></Header>
+        <Header><NavBar me={me} /></Header>
         <Content style={{ padding: '0 48px' }}>
             <Layout
                 style={{ marginTop: "50px", padding: '24px 0', background: colorBgContainer, borderRadius: borderRadiusLG }}
@@ -47,3 +50,27 @@ export default function BasicLayout({ children, noSider }: React.PropsWithChildr
         </Footer>
     </Layout>
 }
+
+export function PrivateLayout({ children, noSider }: React.PropsWithChildren<BasicLayoutProps>) {
+    const [me, setMe] = useState<User | undefined>();
+
+    useEffect(() => {
+        const fetchMe = async () => {
+            try {
+                const me = await getMe();
+                setMe(me);
+            } catch (e) {
+                console.log(e);
+                const navigate = useNavigate();
+                navigate("/login");
+            }
+        }
+        fetchMe();
+    }, []);
+
+    if (!me) {
+        return null;
+    }
+    return <BasicLayout noSider={noSider} me={me}>{children}</BasicLayout>
+}
+

@@ -21,9 +21,9 @@ const (
 	ByCookies AuthenticationType = 1
 	ByToken   AuthenticationType = 2
 
-	SubmitAppResultSucceed    = 0
-	SubmitAppResultSystemBusy = 1
-	SubmitAppResultSystemErr  = 2
+	SubmitAppResultSucceed          = 0
+	SubmitAppResultSystemBusy       = 1
+	SubmitAppResultSystemTaskExists = 2
 )
 
 type AppInfo struct {

@@ -2,12 +2,13 @@ package file
 
 import (
 	"archive/zip"
-	"autograder/pkg/model/constants"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"autograder/pkg/model/constants"
 
 	"github.com/sirupsen/logrus"
 
@@ -15,21 +16,21 @@ import (
 	"autograder/pkg/model/entity"
 )
 
-type daoImpl struct {
+type DaoImpl struct {
 	cli        docker.Client
 	imageReady bool
 }
 
-func NewDao() *daoImpl {
-	return &daoImpl{}
+func NewDao() *DaoImpl {
+	return &DaoImpl{}
 }
 
-func (d *daoImpl) Cleanup(ctx context.Context, info *entity.AppInfo) error {
+func (d *DaoImpl) Cleanup(ctx context.Context, info *entity.AppInfo) error {
 	appDir := info.AppPath()
 	return os.RemoveAll(appDir)
 }
 
-func (d *daoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
+func (d *DaoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
 	r, err := zip.OpenReader(info.ZipFilePath())
 	if err != nil {
 		logrus.Errorf("[Unzip DAO][Unzip] call zip.OpenReader error %+v", err)
@@ -80,7 +81,7 @@ func (d *daoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
 	return nil
 }
 
-func (d *daoImpl) PrepareLogFile(ctx context.Context, info *entity.AppInfo) (io.Writer, io.Writer, error) {
+func (d *DaoImpl) PrepareLogFile(ctx context.Context, info *entity.AppInfo) (io.Writer, io.Writer, error) {
 	logDir := info.GetLogDir()
 	if logDir == nil {
 		return nil, nil, fmt.Errorf("nil log file")

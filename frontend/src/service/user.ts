@@ -1,5 +1,7 @@
+import { Navigate, useNavigate } from 'react-router-dom';
 import axios from "axios";
-import { LoginRequest, LoginResponse } from "../model/user";
+import { LoginRequest, LoginResponse, User } from "../model/user";
+import { removeToken } from './token';
 
 export async function login(request: LoginRequest) {
     const formData = new FormData();
@@ -10,5 +12,16 @@ export async function login(request: LoginRequest) {
             'Content-Type': 'multipart/form-data'
         }
     });
+    return resp.data;
+}
+
+export function logout() {
+    removeToken();
+    const navigate = useNavigate();
+    navigate("/");
+}
+
+export async function getMe() {
+    let resp = await axios.get<User>('/api/me');
     return resp.data;
 }

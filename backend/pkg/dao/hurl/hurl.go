@@ -1,29 +1,34 @@
 package hurl
 
 import (
+	"context"
+	"os"
+	"os/exec"
+	"path/filepath"
+
+	"github.com/sirupsen/logrus"
+
 	"autograder/pkg/config"
 	"autograder/pkg/model/constants"
 	"autograder/pkg/model/entity"
 	"autograder/pkg/utils"
-	"context"
-	"github.com/sirupsen/logrus"
-	"os"
-	"os/exec"
-	"path/filepath"
 )
 
-type daoImpl struct{}
+type DaoImpl struct{}
 
-func NewDAO() *daoImpl {
-	return &daoImpl{}
+func NewDAO() *DaoImpl {
+	return &DaoImpl{}
 }
 
-func (d *daoImpl) RunAllTests(ctx context.Context, info *entity.AppInfo) ([]*entity.HurlTestResult, error) {
+func (d *DaoImpl) RunAllTests(ctx context.Context, info *entity.AppInfo) ([]*entity.HurlTestResult, error) {
 	logDir := info.GetLogDir()
 	reportDir := logDir.DirPath
 	reportJsonPath := filepath.Join(reportDir, "report.json")
 
-	_, _ = os.ReadFile(reportJsonPath)
+	err := os.Remove(reportJsonPath)
+	if err != nil {
+		logrus.Warnf("[Hurl DAO][RunAllTests] call os.ReadFile error %+v", err)
+	}
 
 	cmd := exec.Command("hurl", "--test", config.Instance.TestcasesDir, "--report-json", reportDir)
 

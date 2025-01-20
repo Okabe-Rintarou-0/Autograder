@@ -1,7 +1,5 @@
 package response
 
-import "autograder/pkg/model/entity"
-
 type LoginResponse struct {
 	*BaseResp
 
@@ -9,5 +7,7 @@ type LoginResponse struct {
 }
 
 type GetMeResponse struct {
-	entity.User
+	UserID   uint   `json:"user_id,omitempty"`
+	Username string `json:"username,omitempty"`
+	Email    string `json:"email,omitempty"`
 }

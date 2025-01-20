@@ -1,11 +1,12 @@
-import { Card, Space, Table, Tabs, Tag } from "antd";
-import BasicLayout from "../components/layout";
+import { Badge, Card, Space, Table, Tabs, Tag } from "antd";
+import { PrivateLayout } from "../components/layout";
 import { listTasks } from "../service/task";
 import useMessage from "antd/es/message/useMessage";
 import React, { useEffect, useState } from "react";
 import { LazyLog } from "@melloware/react-logviewer";
 import { AppRunTask } from "../model/user";
 import { AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting } from "../model/app";
+import { BadgeProps } from "antd/lib";
 
 export default function TaskPage() {
     const pageSize = 20;
@@ -36,6 +37,17 @@ export default function TaskPage() {
         title: '任务ID',
         dataIndex: 'uuid',
         key: 'uuid',
+    }, {
+        title: '通过率',
+        dataIndex: 'pass',
+        key: 'pass',
+        render: (pass: number, task: AppRunTask) => {
+            let status: BadgeProps["status"] = "success";
+            if (pass != task.total) {
+                status = "error"
+            }
+            return <Badge status={status} text={`${pass}/${task.total}`} />
+        }
     }, {
         title: '状态',
         dataIndex: 'status',
@@ -68,7 +80,7 @@ export default function TaskPage() {
     }
 
     return (
-        <BasicLayout>
+        <PrivateLayout>
             {contextHolder}
             <Card className="card-container">
                 <Table columns={columns} dataSource={tasks}
@@ -93,6 +105,6 @@ export default function TaskPage() {
                 >
                 </Table>
             </Card>
-        </BasicLayout >
+        </PrivateLayout >
     )
 }

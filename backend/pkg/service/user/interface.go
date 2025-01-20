@@ -1,9 +1,9 @@
 package user
 
 import (
+	"autograder/pkg/model/entity"
 	"context"
 
-	"autograder/pkg/model/entity"
 	"autograder/pkg/model/request"
 	"autograder/pkg/model/response"
 )

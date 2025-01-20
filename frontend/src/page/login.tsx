@@ -7,7 +7,7 @@ import {
 import { LoginFormPage, ProFormText } from '@ant-design/pro-components';
 import useMessage from "antd/es/message/useMessage";
 import { useNavigate } from "react-router-dom";
-import BasicLayout from "../components/layout";
+import { BasicLayout } from "../components/layout";
 import { login } from "../service/user";
 import { handleBaseResp } from "../utils/handle_resp";
 import { LoginRequest } from "../model/user";

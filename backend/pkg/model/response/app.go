@@ -11,6 +11,8 @@ type AppRunTask struct {
 	UserID    uint      `json:"user_id"`
 	Status    int32     `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
+	Pass      int32     `json:"pass"`
+	Total     int32     `json:"total"`
 }
 
 type ListAppTasksResponse struct {

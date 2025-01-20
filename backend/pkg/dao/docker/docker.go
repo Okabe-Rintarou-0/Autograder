@@ -22,19 +22,19 @@ var (
 	}
 )
 
-type daoImpl struct {
+type DaoImpl struct {
 	cli        docker.Client
 	imageReady bool
 }
 
-func NewDAO() *daoImpl {
-	return &daoImpl{
+func NewDAO() *DaoImpl {
+	return &DaoImpl{
 		cli:        docker.NewClient(),
 		imageReady: false,
 	}
 }
 
-func (d *daoImpl) checkHTTP() bool {
+func (d *DaoImpl) checkHTTP() bool {
 	_, err := http.Get("http://localhost:8080")
 	if err == nil {
 		return true
@@ -42,7 +42,7 @@ func (d *daoImpl) checkHTTP() bool {
 	return false
 }
 
-func (d *daoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.Writer) (ContainerRemoveFn, error) {
+func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.Writer) (ContainerRemoveFn, error) {
 	compileContainerImageName := jdkImageNameMap[info.JDKVersion]
 	if !d.imageReady {
 		err := d.cli.PullImage(ctx, compileContainerImageName)

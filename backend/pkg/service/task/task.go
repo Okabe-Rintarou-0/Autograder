@@ -1,11 +1,14 @@
 package task
 
 import (
+	"autograder/pkg/dao/docker"
 	"context"
 	"io"
 	"path"
 	"strconv"
+	"sync"
 
+	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/sirupsen/logrus"
 
 	"autograder/pkg/config"
@@ -16,31 +19,96 @@ import (
 	"autograder/pkg/utils"
 )
 
-type serviceImpl struct {
-	groupDAO *dao.GroupDAO
-	workerCh chan *entity.AppInfo
+type ServiceImpl struct {
+	groupDAO    *dao.GroupDAO
+	workerCh    chan *entity.AppInfo
+	userTaskSet *hashset.Set
+	rwLock      sync.RWMutex
 }
 
-func NewService(groupDAO *dao.GroupDAO) *serviceImpl {
-	svc := &serviceImpl{
-		groupDAO: groupDAO,
-		workerCh: make(chan *entity.AppInfo, 200),
+func NewService(groupDAO *dao.GroupDAO) *ServiceImpl {
+	svc := &ServiceImpl{
+		groupDAO:    groupDAO,
+		workerCh:    make(chan *entity.AppInfo, 200),
+		userTaskSet: hashset.New(),
 	}
 	go svc.worker(context.Background())
 	return svc
 }
 
-func (s *serviceImpl) SubmitApp(ctx context.Context, info *entity.AppInfo) (entity.SubmitAppResult, error) {
+func (s *ServiceImpl) putUserTask(userID uint) {
+	s.rwLock.Lock()
+	defer s.rwLock.Unlock()
+
+	s.userTaskSet.Add(userID)
+}
+
+func (s *ServiceImpl) removeUserTask(userID uint) {
+	s.rwLock.Lock()
+	defer s.rwLock.Unlock()
+
+	s.userTaskSet.Remove(userID)
+}
+
+func (s *ServiceImpl) existsUserTask(userID uint) bool {
+	s.rwLock.RLock()
+	defer s.rwLock.RUnlock()
+
+	return s.userTaskSet.Contains(userID)
+}
+
+func (s *ServiceImpl) SubmitApp(ctx context.Context, info *entity.AppInfo) (entity.SubmitAppResult, error) {
+	if s.existsUserTask(info.User.UserID) {
+		return entity.SubmitAppResultSystemTaskExists, nil
+	}
+
 	isFull := utils.SendIfNotFull(s.workerCh, info)
 	if isFull {
 		return entity.SubmitAppResultSystemBusy, nil
 	}
+
+	s.putUserTask(info.User.UserID)
+
 	model := info.ToDBM(dbm.AppRunTaskStatusWaiting)
 	err := s.groupDAO.TaskDAO.SaveIfNotExist(ctx, model)
 	return entity.SubmitAppResultSucceed, err
 }
 
-func (s *serviceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
+func (s *ServiceImpl) updateTaskByTestResults(model *dbm.AppRunTask, testResults []*entity.HurlTestResult) {
+	model.Total = int32(len(testResults))
+	pass := utils.Map(testResults, func(r *entity.HurlTestResult) bool {
+		return r.Success
+	})
+	model.Pass = utils.Reduce(pass, func(sum int32, passed bool) int32 {
+		if passed {
+			return sum + 1
+		}
+		return sum
+	})
+	if model.Pass == model.Total {
+		model.Status = dbm.AppRunTaskStatusSucceed
+	} else {
+		model.Status = dbm.AppRunTaskStatusFail
+	}
+}
+
+func (s *ServiceImpl) cleanup(ctx context.Context, info *entity.AppInfo, removeFn docker.ContainerRemoveFn) {
+	logrus.Info("[TaskService][RunApp] post running, remove the container")
+	err := s.groupDAO.FileDAO.Cleanup(ctx, info)
+	if err != nil {
+		logrus.Warnf("[TaskService][RunApp] post running, call FileDAO.Cleanup error %+v", err)
+	}
+	if removeFn != nil {
+		if err = removeFn(); err != nil {
+			logrus.Warnf("[TaskService][RunApp] post running, remove container error %+v", err)
+		}
+	}
+	if err == nil {
+		logrus.Info("[TaskService][RunApp] post running, clean up successfully")
+	}
+}
+
+func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	err := s.groupDAO.FileDAO.Unzip(ctx, info)
 	if err != nil {
 		logrus.Errorf("[TaskService][RunApp] call FileDAO.Unzip error %+v", err)
@@ -59,21 +127,7 @@ func (s *serviceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 		return err
 	}
 
-	defer func() {
-		logrus.Info("[TaskService][RunApp] post running, remove the container")
-		err := s.groupDAO.FileDAO.Cleanup(ctx, info)
-		if err != nil {
-			logrus.Warnf("[TaskService][RunApp] post running, call FileDAO.Cleanup error %+v", err)
-		}
-		if removeFn != nil {
-			if err = removeFn(); err != nil {
-				logrus.Warnf("[TaskService][RunApp] post running, remove container error %+v", err)
-			}
-		}
-		if err == nil {
-			logrus.Info("[TaskService][RunApp] post running, clean up successfully")
-		}
-	}()
+	defer s.cleanup(ctx, info, removeFn)
 
 	testResults, err := s.groupDAO.HurlDAO.RunAllTests(ctx, info)
 	if err != nil {
@@ -85,22 +139,7 @@ func (s *serviceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	if err != nil {
 		return err
 	}
-	logrus.Infof("[TaskService][RunApp] model %+v", model)
-	model.Total = int32(len(testResults))
-	pass := utils.Map(testResults, func(r *entity.HurlTestResult) bool {
-		return r.Success
-	})
-	model.Pass = utils.Reduce(pass, func(sum int32, passed bool) int32 {
-		if passed {
-			return sum + 1
-		}
-		return sum
-	})
-	if model.Pass == model.Total {
-		model.Status = dbm.AppRunTaskStatusSucceed
-	} else {
-		model.Status = dbm.AppRunTaskStatusFail
-	}
+	s.updateTaskByTestResults(model, testResults)
 	logrus.Infof("[TaskService][RunApp] model %+v", model)
 	err = s.groupDAO.TaskDAO.Save(ctx, model)
 	if err != nil {
@@ -109,7 +148,7 @@ func (s *serviceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	return err
 }
 
-func (s *serviceImpl) ListAppTasks(ctx context.Context, userID uint, page *entity.Page) (*response.ListAppTasksResponse, error) {
+func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID uint, page *entity.Page) (*response.ListAppTasksResponse, error) {
 	modelPage, err := s.groupDAO.TaskDAO.ListUserTasksByPage(ctx, userID, page.ToDBM())
 	if err != nil {
 		return nil, err
@@ -122,13 +161,15 @@ func (s *serviceImpl) ListAppTasks(ctx context.Context, userID uint, page *entit
 				UserID:    m.UserID,
 				Status:    m.Status,
 				CreatedAt: m.CreatedAt,
+				Pass:      m.Pass,
+				Total:     m.Total,
 			}
 		}),
 	}
 	return resp, nil
 }
 
-func (s *serviceImpl) GetLogFile(ctx context.Context, uuid, logType string) (io.Reader, error) {
+func (s *ServiceImpl) GetLogFile(ctx context.Context, uuid, logType string) (io.Reader, error) {
 	model, err := s.groupDAO.TaskDAO.FindByUUID(ctx, uuid)
 	if err != nil {
 		return nil, err

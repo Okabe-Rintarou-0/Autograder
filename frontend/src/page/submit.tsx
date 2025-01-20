@@ -1,5 +1,5 @@
 import { Button, Card, Form, Select, Upload } from "antd";
-import BasicLayout from "../components/layout";
+import { PrivateLayout } from "../components/layout";
 import { AppInfo } from "../model/app";
 import { UploadOutlined } from "@ant-design/icons";
 import { submitApp } from "../service/task";
@@ -32,7 +32,7 @@ export default function SubmitPage() {
     };
 
     return (
-        <BasicLayout>
+        <PrivateLayout>
             {contextHolder}
             <Card className="card-container">
                 <Form
@@ -59,7 +59,7 @@ export default function SubmitPage() {
                     >
                         <Select placeholder="请选择您的鉴权方式">
                             <Option value={1}>Cookies</Option>
-                            <Option value={1}>Token</Option>
+                            <Option value={2}>Token</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item
@@ -86,6 +86,6 @@ export default function SubmitPage() {
                     </Form.Item>
                 </Form>
             </Card>
-        </BasicLayout>
+        </PrivateLayout>
     );
 }

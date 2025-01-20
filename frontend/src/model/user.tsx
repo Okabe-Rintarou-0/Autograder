@@ -10,6 +10,7 @@ export interface LoginResponse extends BaseResp {
 }
 
 export interface User extends BaseResp {
+    user_id: number;
     username: string;
     email: string;
 }
@@ -19,6 +20,8 @@ export interface AppRunTask {
     user_id: number;
     status: number;
     created_at: string;
+    pass: number;
+    total: number;
 }
 
 export interface ListAppTasksResponse {

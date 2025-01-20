@@ -1,8 +1,9 @@
 package hurl
 
 import (
-	"autograder/pkg/model/entity"
 	"context"
+
+	"autograder/pkg/model/entity"
 )
 
 type ContainerRemoveFn func() error

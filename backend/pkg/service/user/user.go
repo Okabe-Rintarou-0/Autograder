@@ -1,13 +1,13 @@
 package user
 
 import (
+	"autograder/pkg/model/entity"
 	"context"
 	"errors"
 
 	"autograder/pkg/config"
 	"autograder/pkg/dao"
 	"autograder/pkg/messages"
-	"autograder/pkg/model/entity"
 	"autograder/pkg/model/request"
 	"autograder/pkg/model/response"
 	"autograder/pkg/utils"
@@ -52,7 +52,7 @@ func (s *serviceImpl) Login(ctx context.Context, request *request.LoginRequest) 
 func (s *serviceImpl) GetUser(ctx context.Context, userID uint) (*entity.User, error) {
 	user, err := s.groupDAO.UserDAO.FindById(ctx, userID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		logrus.Errorf("[User Service][GetUser] call UserDAO.FindByID error %+v", err)
+		logrus.Errorf("[User Service][GetMe] call UserDAO.FindByID error %+v", err)
 		return nil, err
 	}
 	if user == nil {
