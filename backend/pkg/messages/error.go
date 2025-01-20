@@ -5,6 +5,7 @@ const (
 	EmailOrUsernameExists   = "用户名（邮箱）已存在"
 	LoginExpired            = "登录过期"
 	SystemBusy              = "系统繁忙，请稍后再试"
+	TaskAlreadyExists       = "存在已经上传的任务，请稍后再试"
 )
 
 const (

@@ -27,6 +27,7 @@ func (s *ServiceImpl) dealWithApp(ctx context.Context, info *entity.AppInfo) {
 			task.Status = dbm.AppRunTaskStatusFail
 			_ = s.groupDAO.TaskDAO.Save(ctx, task)
 		}
+		s.removeUserTask(task.UserID)
 	}()
 
 	err = s.groupDAO.TaskDAO.Save(ctx, model)

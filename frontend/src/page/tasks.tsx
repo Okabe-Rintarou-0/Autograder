@@ -1,4 +1,4 @@
-import { Badge, Card, Space, Table, Tabs, Tag } from "antd";
+import { Badge, Button, Card, Space, Table, Tabs, Tag } from "antd";
 import { PrivateLayout } from "../components/layout";
 import { listTasks } from "../service/task";
 import useMessage from "antd/es/message/useMessage";
@@ -82,7 +82,7 @@ export default function TaskPage() {
     return (
         <PrivateLayout>
             {contextHolder}
-            <Card className="card-container">
+            <Card className="card-container" extra={<Button type="primary" onClick={getTasks}>刷新</Button>}>
                 <Table columns={columns} dataSource={tasks}
                     rowKey="uuid"
                     pagination={{

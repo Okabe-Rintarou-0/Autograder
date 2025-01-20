@@ -136,13 +136,18 @@ func (h *Handler) HandleRunApp(c *gin.Context) {
 		return
 	}
 
-	if result == entity.SubmitAppResultSystemBusy {
+	switch result {
+	case entity.SubmitAppResultSystemBusy:
 		c.JSON(http.StatusOK, &response.SubmitAppResponse{
 			BaseResp: response.NewErrorBaseResp(messages.SystemBusy, messages.ErrCodeCommon),
 		})
-	} else if result == entity.SubmitAppResultSucceed {
+	case entity.SubmitAppResultSucceed:
 		c.JSON(http.StatusOK, &response.SubmitAppResponse{
 			BaseResp: response.NewSucceedBaseResp(messages.SubmitSucceed),
+		})
+	case entity.SubmitAppResultSystemTaskExists:
+		c.JSON(http.StatusOK, &response.SubmitAppResponse{
+			BaseResp: response.NewErrorBaseResp(messages.TaskAlreadyExists, messages.ErrCodeCommon),
 		})
 	}
 }
