@@ -14,6 +14,7 @@ func UnmarshalYamlFile[T any](filePath string, out *T) error {
 		logrus.Errorf("[utils.UnmarshalYamlFile] call os.Open error %+v", err)
 		return err
 	}
+	defer file.Close()
 	bytes, err := io.ReadAll(file)
 	if err != nil {
 		logrus.Errorf("[utils.UnmarshalYamlFile] call io.ReadAll error %+v", err)

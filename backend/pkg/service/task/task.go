@@ -129,7 +129,7 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 
 	defer s.cleanup(ctx, info, removeFn)
 
-	testResults, err := s.groupDAO.HurlDAO.RunAllTests(ctx, info)
+	rawResults, testResults, err := s.groupDAO.HurlDAO.RunAllTests(ctx, info)
 	if err != nil {
 		logrus.Errorf("[TaskService][RunApp] call HurlDAO.RunAllTests error %+v", err)
 		return err
@@ -139,6 +139,7 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	if err != nil {
 		return err
 	}
+	model.TestResults = &rawResults
 	s.updateTaskByTestResults(model, testResults)
 	logrus.Infof("[TaskService][RunApp] model %+v", model)
 	err = s.groupDAO.TaskDAO.Save(ctx, model)
@@ -157,19 +158,20 @@ func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID uint, page *entit
 		Total: modelPage.Total,
 		Data: utils.Map(modelPage.Items, func(m *dbm.AppRunTask) *response.AppRunTask {
 			return &response.AppRunTask{
-				UUID:      m.UUID,
-				UserID:    m.UserID,
-				Status:    m.Status,
-				CreatedAt: m.CreatedAt,
-				Pass:      m.Pass,
-				Total:     m.Total,
+				UUID:        m.UUID,
+				UserID:      m.UserID,
+				Status:      m.Status,
+				CreatedAt:   m.CreatedAt,
+				Pass:        m.Pass,
+				Total:       m.Total,
+				TestResults: m.TestResults,
 			}
 		}),
 	}
 	return resp, nil
 }
 
-func (s *ServiceImpl) GetLogFile(ctx context.Context, uuid, logType string) (io.Reader, error) {
+func (s *ServiceImpl) GetLogFile(ctx context.Context, uuid, logType string) (io.ReadCloser, error) {
 	model, err := s.groupDAO.TaskDAO.FindByUUID(ctx, uuid)
 	if err != nil {
 		return nil, err

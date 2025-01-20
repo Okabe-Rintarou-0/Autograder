@@ -81,7 +81,7 @@ func (d *DaoImpl) Unzip(ctx context.Context, info *entity.AppInfo) error {
 	return nil
 }
 
-func (d *DaoImpl) PrepareLogFile(ctx context.Context, info *entity.AppInfo) (io.Writer, io.Writer, error) {
+func (d *DaoImpl) PrepareLogFile(ctx context.Context, info *entity.AppInfo) (io.WriteCloser, io.WriteCloser, error) {
 	logDir := info.GetLogDir()
 	if logDir == nil {
 		return nil, nil, fmt.Errorf("nil log file")

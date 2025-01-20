@@ -22,6 +22,7 @@ export interface AppRunTask {
     created_at: string;
     pass: number;
     total: number;
+    test_results: string | null;
 }
 
 export interface ListAppTasksResponse {

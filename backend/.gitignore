@@ -27,3 +27,4 @@ config.yml
 worker/
 
 .idea/
+.DS_Store

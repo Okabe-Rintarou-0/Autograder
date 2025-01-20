@@ -10,5 +10,5 @@ import (
 type ContainerRemoveFn func() error
 
 type DAO interface {
-	CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.Writer) (ContainerRemoveFn, error)
+	CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.WriteCloser) (ContainerRemoveFn, error)
 }

@@ -187,6 +187,7 @@ func (h *Handler) HandleGetLog(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
+	defer logReader.Close()
 	if _, err = io.Copy(c.Writer, logReader); err != nil {
 		logrus.Errorf("[Handler][HandleGetLog] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

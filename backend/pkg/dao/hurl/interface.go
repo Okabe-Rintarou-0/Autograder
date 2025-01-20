@@ -9,5 +9,5 @@ import (
 type ContainerRemoveFn func() error
 
 type DAO interface {
-	RunAllTests(ctx context.Context, info *entity.AppInfo) ([]*entity.HurlTestResult, error)
+	RunAllTests(ctx context.Context, info *entity.AppInfo) (string, []*entity.HurlTestResult, error)
 }

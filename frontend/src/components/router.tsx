@@ -7,7 +7,7 @@ import TaskPage from "../page/tasks";
 export default function AppRouter() {
     return <BrowserRouter>
         <Routes>
-            <Route index element={<Navigate to={"/login"} />} />
+            <Route index element={<Navigate to={"/submit"} />} />
             <Route path="/submit" element={<SubmitPage />} />
             <Route path="/tasks" element={<TaskPage />} />
             <Route path="/login" element={<LoginPage />} />

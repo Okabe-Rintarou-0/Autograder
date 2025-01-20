@@ -42,7 +42,7 @@ func (d *DaoImpl) checkHTTP() bool {
 	return false
 }
 
-func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.Writer) (ContainerRemoveFn, error) {
+func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.WriteCloser) (ContainerRemoveFn, error) {
 	compileContainerImageName := jdkImageNameMap[info.JDKVersion]
 	if !d.imageReady {
 		err := d.cli.PullImage(ctx, compileContainerImageName)
@@ -83,6 +83,10 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 		Build()
 	reader, err := d.cli.ExecuteContainer(ctx, id, commands)
 	go func() {
+		defer func() {
+			_ = stdoutWriter.Close()
+			_ = stderrWriter.Close()
+		}()
 		// https://stackoverflow.com/questions/46478169/explain-and-remove-useless-bytes-at-the-start-of-docker-exec-response
 		_, err := stdcopy.StdCopy(stdoutWriter, stderrWriter, reader)
 		if err != nil {

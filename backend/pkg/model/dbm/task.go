@@ -15,8 +15,10 @@ type AppRunTask struct {
 	gorm.Model
 
 	UUID   string `gorm:"type:varchar(36);uniqueIndex"`
-	UserID uint
-	Status int32
-	Pass   int32
-	Total  int32
+	UserID uint   `gorm:"not null"`
+	Status int32  `gorm:"not null"`
+	Pass   int32  `gorm:"not null"`
+	Total  int32  `gorm:"not null"`
+
+	TestResults *string `gorm:"type:json"`
 }

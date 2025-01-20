@@ -7,6 +7,7 @@ import { LazyLog } from "@melloware/react-logviewer";
 import { AppRunTask } from "../model/user";
 import { AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting } from "../model/app";
 import { BadgeProps } from "antd/lib";
+import ReactJson from "react-json-view-ts";
 
 export default function TaskPage() {
     const pageSize = 20;
@@ -66,7 +67,7 @@ export default function TaskPage() {
     }];
 
     const getTabs = (task: AppRunTask) => {
-        return ["stdout", "stderr", "hurl"].map(logType => ({
+        const tabs = ["stdout", "stderr", "hurl"].map(logType => ({
             key: logType,
             label: (logType === "hurl" ? "测试" : logType) + '日志',
             children: <LazyLog caseInsensitive
@@ -77,6 +78,19 @@ export default function TaskPage() {
                 selectableLines
                 url={`/api/logs?uuid=${task.uuid}&log_type=${logType}`} />
         }));
+        let obj;
+        try {
+            obj = JSON.parse(task.test_results ?? "")
+        } catch (e) {
+            obj = {};
+        }
+        tabs.push({
+            key: "report",
+            label: 'report.json',
+            children: <ReactJson src={obj} theme={"threezerotwofour"}
+                style={{ overflow: "scroll" }} collapsed={false} name={null} />
+        });
+        return tabs;
     }
 
     return (

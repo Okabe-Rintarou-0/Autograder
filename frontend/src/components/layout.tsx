@@ -68,9 +68,6 @@ export function PrivateLayout({ children, noSider }: React.PropsWithChildren<Bas
         fetchMe();
     }, []);
 
-    if (!me) {
-        return null;
-    }
-    return <BasicLayout noSider={noSider} me={me}>{children}</BasicLayout>
+    return <BasicLayout noSider={noSider} me={me}>{me && children}</BasicLayout>
 }
 

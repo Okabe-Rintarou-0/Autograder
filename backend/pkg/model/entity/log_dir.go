@@ -12,7 +12,7 @@ type LogDir struct {
 	UUID    string
 }
 
-func (d *LogDir) prepare(filePath string) (io.Writer, error) {
+func (d *LogDir) prepare(filePath string) (io.WriteCloser, error) {
 	err := os.MkdirAll(d.DirPath, 0755)
 	if err != nil {
 		return nil, err
@@ -25,10 +25,10 @@ func (d *LogDir) getFileName(logType string) string {
 	return filepath.Join(d.DirPath, fileName)
 }
 
-func (d *LogDir) GetWriter(logType string) (io.Writer, error) {
+func (d *LogDir) GetWriter(logType string) (io.WriteCloser, error) {
 	return d.prepare(d.getFileName(logType))
 }
 
-func (d *LogDir) GetReader(logType string) (io.Reader, error) {
+func (d *LogDir) GetReader(logType string) (io.ReadCloser, error) {
 	return os.Open(d.getFileName(logType))
 }
