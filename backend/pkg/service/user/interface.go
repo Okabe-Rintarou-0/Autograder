@@ -11,4 +11,5 @@ import (
 type Service interface {
 	Login(ctx context.Context, request *request.LoginRequest) (*response.LoginResponse, error)
 	GetUser(ctx context.Context, userID uint) (*entity.User, error)
+	ChangePassword(ctx context.Context, userID uint, newPassword string) error
 }

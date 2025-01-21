@@ -56,3 +56,19 @@ func (d *DaoImpl) ListUserTasksByPage(ctx context.Context, userID uint, page *db
 		Items: models,
 	}, err
 }
+
+func (d *DaoImpl) ListTasksByPage(ctx context.Context, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTask], error) {
+	t := query.Use(d.db).AppRunTask
+	offset := (page.PageNo - 1) * page.PageSize
+	var total int64
+	models, total, err := t.WithContext(ctx).
+		Order(t.ID.Desc()).
+		FindByPage(offset, page.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	return &dbm.ModelPage[*dbm.AppRunTask]{
+		Total: total,
+		Items: models,
+	}, err
+}

@@ -149,9 +149,19 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	return err
 }
 
-func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID uint, page *entity.Page) (*response.ListAppTasksResponse, error) {
-	modelPage, err := s.groupDAO.TaskDAO.ListUserTasksByPage(ctx, userID, page.ToDBM())
+func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID uint, userRole int32, page *entity.Page) (*response.ListAppTasksResponse, error) {
+	var (
+		modelPage *dbm.ModelPage[*dbm.AppRunTask]
+		err       error
+	)
+	if userRole != dbm.Administrator {
+		modelPage, err = s.groupDAO.TaskDAO.ListUserTasksByPage(ctx, userID, page.ToDBM())
+	} else {
+		modelPage, err = s.groupDAO.TaskDAO.ListTasksByPage(ctx, page.ToDBM())
+	}
+
 	if err != nil {
+		logrus.Errorf("[Task Service][ListAppTasks] list tasks error %+v", err)
 		return nil, err
 	}
 	resp := &response.ListAppTasksResponse{

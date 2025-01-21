@@ -1,16 +1,33 @@
 import { Button, Col, Dropdown, Row } from "antd";
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { User } from "../model/user";
-import { FormOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { FormOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { logout } from "../service/user";
+import useMessage from "antd/es/message/useMessage";
+import ChangePasswordModal from "./change_password_modal";
 
 export default function NavBar({ me }: { me?: User }) {
+    const [showModal, setShowModal] = useState(false);
+    const [messageApi, contextHolder] = useMessage();
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+    }
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    }
     const dropMenuItems = [
         {
             key: "username",
-            label: me?.username,
+            label: `${me?.real_name}(${me?.username})`,
             icon: <UserOutlined />,
+        },
+        {
+            key: "email",
+            label: me?.email,
+            icon: <MailOutlined />,
         },
         {
             key: "password",
@@ -25,10 +42,19 @@ export default function NavBar({ me }: { me?: User }) {
             logout();
             return;
         }
+        if (e.key === "password") {
+            handleOpenModal();
+            return;
+        }
+        if (e.key.startsWith("/")) {
+            const navigate = useNavigate();
+            navigate(e.key);
+        }
     };
 
     return (
         <Row className="navbar" justify="start">
+            {contextHolder}
             <Col>
                 <Link to="/">Book Store</Link>
             </Col>
@@ -39,6 +65,7 @@ export default function NavBar({ me }: { me?: User }) {
                     <Button shape="circle" icon={<UserOutlined />} />
                 </Dropdown>
             </Col>}
+            {me && showModal && <ChangePasswordModal onOk={handleCloseModal} onCancel={handleCloseModal} />}
         </Row>
     );
 }

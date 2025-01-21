@@ -33,7 +33,8 @@ func main() {
 	r.Group("/api", interceptor.NewTokenInterceptor(cfg.Token)).
 		GET("/me", handler.HandleGetMe).
 		GET("/tasks", handler.HandleListAppTasks).
-		POST("/run", handler.HandleRunApp)
+		POST("/run", handler.HandleRunApp).
+		PUT("/me/password", handler.HandleChangePassword)
 	r.POST("/api/login", handler.HandleLogin).
 		GET("/api/logs", handler.HandleGetLog)
 	logrus.Fatal(r.Run(":8081"))

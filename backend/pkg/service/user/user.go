@@ -16,15 +16,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type serviceImpl struct {
+type ServiceImpl struct {
 	groupDAO *dao.GroupDAO
 }
 
-func NewService(groupDAO *dao.GroupDAO) *serviceImpl {
-	return &serviceImpl{groupDAO}
+func NewService(groupDAO *dao.GroupDAO) *ServiceImpl {
+	return &ServiceImpl{groupDAO}
 }
 
-func (s *serviceImpl) Login(ctx context.Context, request *request.LoginRequest) (*response.LoginResponse, error) {
+func (s *ServiceImpl) Login(ctx context.Context, request *request.LoginRequest) (*response.LoginResponse, error) {
 	user, err := s.groupDAO.UserDAO.FindByUsernameOrEmail(ctx, request.Identifier, request.Identifier)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.Errorf("[User Service][Login] call UserDAO.FindByUsernameOrEmail error %+v", err)
@@ -49,7 +49,7 @@ func (s *serviceImpl) Login(ctx context.Context, request *request.LoginRequest) 
 	return resp, nil
 }
 
-func (s *serviceImpl) GetUser(ctx context.Context, userID uint) (*entity.User, error) {
+func (s *ServiceImpl) GetUser(ctx context.Context, userID uint) (*entity.User, error) {
 	user, err := s.groupDAO.UserDAO.FindById(ctx, userID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.Errorf("[User Service][GetMe] call UserDAO.FindByID error %+v", err)
@@ -62,5 +62,17 @@ func (s *serviceImpl) GetUser(ctx context.Context, userID uint) (*entity.User, e
 		UserID:   user.ID,
 		Username: user.Username,
 		Email:    user.Email,
+		Role:     user.Role,
+		RealName: user.RealName,
 	}, nil
+}
+
+func (s *ServiceImpl) ChangePassword(ctx context.Context, userID uint, newPassword string) error {
+	user, err := s.groupDAO.UserDAO.FindById(ctx, userID)
+	if err != nil {
+		logrus.Errorf("[User Service][ChangePassword] call UserDAO.FindByID error %+v", err)
+		return err
+	}
+	user.Password = utils.Md5(newPassword)
+	return s.groupDAO.UserDAO.Save(ctx, user)
 }

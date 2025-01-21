@@ -11,6 +11,8 @@ export interface LoginResponse extends BaseResp {
 
 export interface User extends BaseResp {
     user_id: number;
+    real_name: string;
+    role: number;
     username: string;
     email: string;
 }

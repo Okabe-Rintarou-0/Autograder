@@ -36,7 +36,7 @@ func newAppRunTask(db *gorm.DB, opts ...gen.DOOption) appRunTask {
 	_appRunTask.Status = field.NewInt32(tableName, "status")
 	_appRunTask.Pass = field.NewInt32(tableName, "pass")
 	_appRunTask.Total = field.NewInt32(tableName, "total")
-	_appRunTask.TestResult = field.NewString(tableName, "test_result")
+	_appRunTask.TestResults = field.NewString(tableName, "test_results")
 
 	_appRunTask.fillFieldMap()
 
@@ -46,17 +46,17 @@ func newAppRunTask(db *gorm.DB, opts ...gen.DOOption) appRunTask {
 type appRunTask struct {
 	appRunTaskDo appRunTaskDo
 
-	ALL        field.Asterisk
-	ID         field.Uint
-	CreatedAt  field.Time
-	UpdatedAt  field.Time
-	DeletedAt  field.Field
-	UUID       field.String
-	UserID     field.Uint
-	Status     field.Int32
-	Pass       field.Int32
-	Total      field.Int32
-	TestResult field.String
+	ALL         field.Asterisk
+	ID          field.Uint
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
+	UUID        field.String
+	UserID      field.Uint
+	Status      field.Int32
+	Pass        field.Int32
+	Total       field.Int32
+	TestResults field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -82,7 +82,7 @@ func (a *appRunTask) updateTableName(table string) *appRunTask {
 	a.Status = field.NewInt32(table, "status")
 	a.Pass = field.NewInt32(table, "pass")
 	a.Total = field.NewInt32(table, "total")
-	a.TestResult = field.NewString(table, "test_result")
+	a.TestResults = field.NewString(table, "test_results")
 
 	a.fillFieldMap()
 
@@ -119,7 +119,7 @@ func (a *appRunTask) fillFieldMap() {
 	a.fieldMap["status"] = a.Status
 	a.fieldMap["pass"] = a.Pass
 	a.fieldMap["total"] = a.Total
-	a.fieldMap["test_result"] = a.TestResult
+	a.fieldMap["test_results"] = a.TestResults
 }
 
 func (a appRunTask) clone(db *gorm.DB) appRunTask {

@@ -124,6 +124,15 @@ func (h *Handler) HandleGetMe(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+func (h *Handler) HandleChangePassword(c *gin.Context) {
+	userID := c.Value("userID").(uint)
+	err := h.groupSvc.UserSvc.ChangePassword(c.Request.Context(), userID, c.PostForm("password"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
+	}
+	c.JSON(http.StatusOK, response.NewSucceedBaseResp(messages.ModifySucceed))
+}
+
 func (h *Handler) HandleRunApp(c *gin.Context) {
 	appInfo, err := h.validateParams(c)
 	if appInfo == nil || err != nil {
@@ -162,8 +171,15 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 	}
 
 	userID := c.Value("userID").(uint)
+
+	user, err := h.groupSvc.UserSvc.GetUser(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
 	logrus.Infof("[Handler][HandleListAppTasks] request page: %s", utils.FormatJsonString(page))
-	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userID, page)
+	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userID, user.Role, page)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleListAppTasks] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
