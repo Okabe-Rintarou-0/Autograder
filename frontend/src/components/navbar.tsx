@@ -11,6 +11,7 @@ import RoleTag from "./role_tag";
 export default function NavBar({ me }: { me?: User }) {
     const [showModal, setShowModal] = useState(false);
     const [messageApi, contextHolder] = useMessage();
+    const navigate = useNavigate();
 
     const handleOpenModal = () => {
         setShowModal(true);
@@ -44,6 +45,7 @@ export default function NavBar({ me }: { me?: User }) {
     const handleMenuClick = async (e: any) => {
         if (e.key === "/logout") {
             logout();
+            navigate("/");
             return;
         }
         if (e.key === "password") {

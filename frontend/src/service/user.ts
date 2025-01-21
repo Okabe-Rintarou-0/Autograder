@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { ListUsersResponse, LoginRequest, LoginResponse, User } from "../model/user";
 import { removeToken } from './token';
@@ -18,8 +17,6 @@ export async function login(request: LoginRequest) {
 
 export function logout() {
     removeToken();
-    const navigate = useNavigate();
-    navigate("/");
 }
 
 export async function getMe() {
