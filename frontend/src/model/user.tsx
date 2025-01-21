@@ -1,4 +1,7 @@
-import { BaseResp } from "./resp";
+import { BaseResp, ListItemResponse } from "./resp";
+
+export const CommonUser = 1;
+export const Administrator = 2;
 
 export interface LoginRequest {
     identifier: string;
@@ -17,17 +20,4 @@ export interface User extends BaseResp {
     email: string;
 }
 
-export interface AppRunTask {
-    uuid: string;
-    user_id: number;
-    status: number;
-    created_at: string;
-    pass: number;
-    total: number;
-    test_results: string | null;
-}
-
-export interface ListAppTasksResponse {
-    total: number;
-    data: AppRunTask[];
-}
+export interface ListUsersResponse extends ListItemResponse<User> { }

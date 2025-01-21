@@ -3,7 +3,6 @@ import { PrivateLayout } from "../components/layout";
 import { AppInfo } from "../model/app";
 import { submitApp } from "../service/task";
 import useMessage from "antd/es/message/useMessage";
-import React from "react";
 import { handleBaseResp } from "../utils/handle_resp";
 import { ZipUpload } from "../components/upload";
 

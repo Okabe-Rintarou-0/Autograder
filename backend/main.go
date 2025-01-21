@@ -27,15 +27,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	dao := dao.NewGroupDAO(systemDB, eBookStoreDB)
-	groupSvc := service.NewGroupService(dao)
-	handler := handler.NewHandler(groupSvc)
+	groupDAO := dao.NewGroupDAO(systemDB, eBookStoreDB)
+	groupSvc := service.NewGroupService(groupDAO)
+	h := handler.NewHandler(groupSvc)
 	r.Group("/api", interceptor.NewTokenInterceptor(cfg.Token)).
-		GET("/me", handler.HandleGetMe).
-		GET("/tasks", handler.HandleListAppTasks).
-		POST("/run", handler.HandleRunApp).
-		PUT("/me/password", handler.HandleChangePassword)
-	r.POST("/api/login", handler.HandleLogin).
-		GET("/api/logs", handler.HandleGetLog)
+		GET("/me", h.HandleGetMe).
+		GET("/tasks", h.HandleListAppTasks).
+		GET("/users", h.HandleListUsers).
+		POST("/run", h.HandleRunApp).
+		PUT("/me/password", h.HandleChangePassword)
+
+	r.POST("/api/login", h.HandleLogin).
+		GET("/api/logs", h.HandleGetLog)
 	logrus.Fatal(r.Run(":8081"))
 }

@@ -8,11 +8,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"autograder/pkg/model/constants"
-
 	"github.com/sirupsen/logrus"
 
 	"autograder/pkg/dal/cli/docker"
+	"autograder/pkg/model/constants"
 	"autograder/pkg/model/entity"
 )
 

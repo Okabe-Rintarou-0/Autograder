@@ -1,12 +1,14 @@
 package task
 
 import (
-	"autograder/pkg/dao/docker"
+	"autograder/pkg/model/assembler"
 	"context"
 	"io"
 	"path"
 	"strconv"
 	"sync"
+
+	"autograder/pkg/dao/docker"
 
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/sirupsen/logrus"
@@ -166,17 +168,7 @@ func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID uint, userRole in
 	}
 	resp := &response.ListAppTasksResponse{
 		Total: modelPage.Total,
-		Data: utils.Map(modelPage.Items, func(m *dbm.AppRunTask) *response.AppRunTask {
-			return &response.AppRunTask{
-				UUID:        m.UUID,
-				UserID:      m.UserID,
-				Status:      m.Status,
-				CreatedAt:   m.CreatedAt,
-				Pass:        m.Pass,
-				Total:       m.Total,
-				TestResults: m.TestResults,
-			}
-		}),
+		Data:  utils.Map(modelPage.Items, assembler.ConvertAppRunTaskDbmToResponse),
 	}
 	return resp, nil
 }

@@ -1,13 +1,15 @@
 package user
 
 import (
-	"autograder/pkg/model/entity"
+	"autograder/pkg/model/dbm"
 	"context"
 	"errors"
 
 	"autograder/pkg/config"
 	"autograder/pkg/dao"
 	"autograder/pkg/messages"
+	"autograder/pkg/model/assembler"
+	"autograder/pkg/model/entity"
 	"autograder/pkg/model/request"
 	"autograder/pkg/model/response"
 	"autograder/pkg/utils"
@@ -22,6 +24,35 @@ type ServiceImpl struct {
 
 func NewService(groupDAO *dao.GroupDAO) *ServiceImpl {
 	return &ServiceImpl{groupDAO}
+}
+
+func (s *ServiceImpl) Register(ctx context.Context, request *request.RegisterRequest) (*response.RegisterResponse, error) {
+	user, err := s.groupDAO.UserDAO.FindByUsernameOrEmail(ctx, request.Username, request.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.Errorf("[User Service][Register] call UserDAO.FindByUsernameOrEmail error %+v", err)
+		return nil, err
+	}
+	resp := &response.RegisterResponse{}
+	if user != nil {
+		logrus.Errorf("[User Service][Login] user(%d)'s already exists", user.ID)
+		resp.BaseResp = response.NewErrorBaseResp(messages.EmailOrUsernameExists, messages.ErrCodeCommon)
+		return resp, nil
+	}
+
+	user = &dbm.User{
+		Username: request.Username,
+		RealName: request.RealName,
+		Password: request.Password,
+		Email:    request.Email,
+		Role:     dbm.CommonUser,
+	}
+	err = s.groupDAO.UserDAO.Save(ctx, user)
+	if err != nil {
+		logrus.Errorf("[User Service][Register] call UserDAO.Save error %+v", err)
+		return nil, err
+	}
+	resp.BaseResp = response.NewSucceedBaseResp(messages.RegisterSucceed)
+	return resp, nil
 }
 
 func (s *ServiceImpl) Login(ctx context.Context, request *request.LoginRequest) (*response.LoginResponse, error) {
@@ -58,13 +89,7 @@ func (s *ServiceImpl) GetUser(ctx context.Context, userID uint) (*entity.User, e
 	if user == nil {
 		return nil, nil
 	}
-	return &entity.User{
-		UserID:   user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Role:     user.Role,
-		RealName: user.RealName,
-	}, nil
+	return assembler.ConvertUserDbmToEntity(user), nil
 }
 
 func (s *ServiceImpl) ChangePassword(ctx context.Context, userID uint, newPassword string) error {
@@ -75,4 +100,17 @@ func (s *ServiceImpl) ChangePassword(ctx context.Context, userID uint, newPasswo
 	}
 	user.Password = utils.Md5(newPassword)
 	return s.groupDAO.UserDAO.Save(ctx, user)
+}
+
+func (s *ServiceImpl) ListUsers(ctx context.Context, page *entity.Page) (*response.ListUsersResponse, error) {
+	modelPage, err := s.groupDAO.UserDAO.ListByPage(ctx, page.ToDBM())
+	if err != nil {
+		logrus.Errorf("[User Service][ListUsers] call UserDAO.ListByPage error %+v", err)
+		return nil, err
+	}
+	resp := &response.ListUsersResponse{
+		Total: modelPage.Total,
+		Data:  utils.Map(modelPage.Items, assembler.ConvertUserDbmToResponse),
+	}
+	return resp, err
 }

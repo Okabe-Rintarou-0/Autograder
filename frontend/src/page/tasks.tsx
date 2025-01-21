@@ -2,12 +2,13 @@ import { Badge, Button, Card, Space, Table, Tabs, Tag } from "antd";
 import { PrivateLayout } from "../components/layout";
 import { listTasks } from "../service/task";
 import useMessage from "antd/es/message/useMessage";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LazyLog } from "@melloware/react-logviewer";
-import { AppRunTask } from "../model/user";
+import { AppRunTask } from "../model/app";
 import { AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting } from "../model/app";
 import { BadgeProps } from "antd/lib";
 import ReactJson from "react-json-view-ts";
+import { formatDate } from "../utils/time";
 
 export default function TaskPage() {
     const pageSize = 20;
@@ -34,6 +35,7 @@ export default function TaskPage() {
         title: '创建时间',
         dataIndex: 'created_at',
         key: 'created_at',
+        render: formatDate,
     }, {
         title: '任务ID',
         dataIndex: 'uuid',

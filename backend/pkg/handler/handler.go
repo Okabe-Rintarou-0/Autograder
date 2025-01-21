@@ -47,15 +47,20 @@ func getFormIntAttr(c *gin.Context, key string) (int64, error) {
 }
 
 func getPage(c *gin.Context) *entity.Page {
+	defaultPage := &entity.Page{
+		PageSize: DefaultPageSize,
+		PageNo:   DefaultPageNo,
+	}
+
 	pageNoStr := c.Query("page_no")
 	pageSizeStr := c.Query("page_size")
 	pageNo, err := strconv.ParseInt(pageNoStr, 10, 64)
 	if err != nil {
-		return nil
+		return defaultPage
 	}
 	pageSize, err := strconv.ParseInt(pageSizeStr, 10, 64)
 	if err != nil {
-		return nil
+		return defaultPage
 	}
 	return &entity.Page{
 		PageSize: int(pageSize),
@@ -163,15 +168,7 @@ func (h *Handler) HandleRunApp(c *gin.Context) {
 
 func (h *Handler) HandleListAppTasks(c *gin.Context) {
 	page := getPage(c)
-	if page == nil {
-		page = &entity.Page{
-			PageSize: DefaultPageSize,
-			PageNo:   DefaultPageNo,
-		}
-	}
-
 	userID := c.Value("userID").(uint)
-
 	user, err := h.groupSvc.UserSvc.GetUser(c.Request.Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -182,6 +179,20 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userID, user.Role, page)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleListAppTasks] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) HandleListUsers(c *gin.Context) {
+	page := getPage(c)
+
+	logrus.Infof("[Handler][HandleListUsers] request page: %s", utils.FormatJsonString(page))
+	resp, err := h.groupSvc.UserSvc.ListUsers(c.Request.Context(), page)
+	if err != nil {
+		logrus.Errorf("[Handler][HandleListUsers] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}

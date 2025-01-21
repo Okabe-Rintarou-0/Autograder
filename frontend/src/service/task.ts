@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { AppInfo, SubmitAppResponse } from '../model/app';
+import { AppInfo, SubmitAppResponse, ListAppTasksResponse } from '../model/app';
 import { GetProp, UploadProps } from 'antd';
-import { ListAppTasksResponse } from '../model/user';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 

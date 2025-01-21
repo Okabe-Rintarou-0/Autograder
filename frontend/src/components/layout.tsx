@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CloudUploadOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Space, theme } from 'antd';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from 'antd/lib/layout/layout';
@@ -13,6 +13,10 @@ export interface BasicLayoutProps {
     me?: User;
 }
 
+export interface PrivateLayoutProps extends BasicLayoutProps {
+    forRole?: number
+}
+
 export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<BasicLayoutProps>) {
     const items = [{
         key: 'submit',
@@ -22,6 +26,10 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
         key: 'tasks',
         icon: <UnorderedListOutlined />,
         label: <Link to={'/tasks'}> 查看任务 </Link>,
+    }, {
+        key: 'users',
+        icon: <UserOutlined />,
+        label: <Link to={'/users'}> 查看用户 </Link>,
     }];
 
     const parts = useLocation().pathname.split('/');
@@ -51,17 +59,26 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
     </Layout>
 }
 
-export function PrivateLayout({ children, noSider }: React.PropsWithChildren<BasicLayoutProps>) {
+export function PrivateLayout({ forRole, children, noSider }: React.PropsWithChildren<PrivateLayoutProps>) {
     const [me, setMe] = useState<User | undefined>();
+    const navigate = useNavigate();
+    const validateUser = (user: User) => {
+        if (forRole && user.role !== forRole) {
+            return false;
+        }
+        return true;
+    }
 
     useEffect(() => {
         const fetchMe = async () => {
             try {
                 const me = await getMe();
                 setMe(me);
+                if (!validateUser(me)) {
+                    navigate("/403");
+                }
             } catch (e) {
                 console.log(e);
-                const navigate = useNavigate();
                 navigate("/login");
             }
         }

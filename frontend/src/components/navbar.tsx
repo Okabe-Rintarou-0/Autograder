@@ -1,11 +1,12 @@
-import { Button, Col, Dropdown, Row } from "antd";
-import React, { useState } from "react";
+import { Button, Col, Dropdown, Row, Space } from "antd";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User } from "../model/user";
 import { FormOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { logout } from "../service/user";
 import useMessage from "antd/es/message/useMessage";
 import ChangePasswordModal from "./change_password_modal";
+import RoleTag from "./role_tag";
 
 export default function NavBar({ me }: { me?: User }) {
     const [showModal, setShowModal] = useState(false);
@@ -21,7 +22,10 @@ export default function NavBar({ me }: { me?: User }) {
     const dropMenuItems = [
         {
             key: "username",
-            label: `${me?.real_name}(${me?.username})`,
+            label: <Space>
+                <span>{`${me?.real_name}(${me?.username})`}</span>
+                <RoleTag role={me?.role} />
+            </Space>,
             icon: <UserOutlined />,
         },
         {
@@ -37,7 +41,7 @@ export default function NavBar({ me }: { me?: User }) {
         { key: "/logout", label: "登出", icon: <LogoutOutlined />, danger: true },
     ];
 
-    const handleMenuClick = async (e) => {
+    const handleMenuClick = async (e: any) => {
         if (e.key === "/logout") {
             logout();
             return;
