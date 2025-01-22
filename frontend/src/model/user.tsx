@@ -3,6 +3,8 @@ import { BaseResp, ListItemResponse } from "./resp";
 export const CommonUser = 1;
 export const Administrator = 2;
 
+export const registerUserURL = "/api/register";
+
 export interface LoginRequest {
     identifier: string;
     password: string;
@@ -21,3 +23,10 @@ export interface User extends BaseResp {
 }
 
 export interface ListUsersResponse extends ListItemResponse<User> { }
+
+export interface RegisterUserRequest {
+    username: string;
+    real_name: string;
+    email: string;
+    password: string;
+}

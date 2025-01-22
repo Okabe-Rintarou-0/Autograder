@@ -35,7 +35,8 @@ func main() {
 		GET("/tasks", h.HandleListAppTasks).
 		GET("/users", h.HandleListUsers).
 		POST("/run", h.HandleRunApp).
-		PUT("/me/password", h.HandleChangePassword)
+		PUT("/me/password", h.HandleChangePassword).
+		POST("/register", h.HandleRegister)
 
 	r.POST("/api/login", h.HandleLogin).
 		GET("/api/logs", h.HandleGetLog)

@@ -4,7 +4,7 @@ import { Layout, Menu, Space, theme } from 'antd';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from 'antd/lib/layout/layout';
 import NavBar from './navbar';
-import { User } from '../model/user';
+import { Administrator, User } from '../model/user';
 import { getMe } from '../service/user';
 const { Content, Footer, Sider } = Layout;
 
@@ -18,19 +18,26 @@ export interface PrivateLayoutProps extends BasicLayoutProps {
 }
 
 export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<BasicLayoutProps>) {
-    const items = [{
-        key: 'submit',
-        icon: <CloudUploadOutlined />,
-        label: <Link to={'/submit'}> 上传任务 </Link>,
-    }, {
-        key: 'tasks',
-        icon: <UnorderedListOutlined />,
-        label: <Link to={'/tasks'}> 查看任务 </Link>,
-    }, {
-        key: 'users',
-        icon: <UserOutlined />,
-        label: <Link to={'/users'}> 查看用户 </Link>,
-    }];
+    const getItems = () => {
+        const items = [{
+            key: 'submit',
+            icon: <CloudUploadOutlined />,
+            label: <Link to={'/submit'}> 上传任务 </Link>,
+        }, {
+            key: 'tasks',
+            icon: <UnorderedListOutlined />,
+            label: <Link to={'/tasks'}> 查看任务 </Link>,
+        }];
+
+        if (me?.role === Administrator) {
+            items.push({
+                key: 'users',
+                icon: <UserOutlined />,
+                label: <Link to={'/users'}> 查看用户 </Link>,
+            });
+        }
+        return items;
+    }
 
     const parts = useLocation().pathname.split('/');
     const selectedKeys = [parts[parts.length - 1]];
@@ -45,7 +52,7 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
                 style={{ marginTop: "50px", padding: '24px 0', background: colorBgContainer, borderRadius: borderRadiusLG }}
             >
                 {!noSider && <Sider style={{ background: colorBgContainer }} width={200} >
-                    <Menu defaultSelectedKeys={selectedKeys} items={items} mode="inline" style={{ height: '100%' }} />
+                    <Menu defaultSelectedKeys={selectedKeys} items={getItems()} mode="inline" style={{ height: '100%' }} />
                 </Sider>}
                 <Content style={{ padding: '0 24px', minHeight: 280 }}>{children}</Content>
             </Layout>

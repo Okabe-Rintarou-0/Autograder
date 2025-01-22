@@ -1,18 +1,23 @@
 import { Button, Form, Input, Modal } from "antd";
-import React from "react";
 import useMessage from "antd/es/message/useMessage";
 import { changePassword } from "../service/user";
 import { handleBaseResp } from "../utils/handle_resp";
 
 const { Password } = Input;
+
+interface ChangePasswordParam {
+    password: string;
+    confirm: string;
+}
+
 export default function ChangePasswordModal({ onOk, onCancel }: {
     onOk: () => void,
     onCancel: () => void
 }) {
-    const [form] = Form.useForm();
+    const [form] = Form.useForm<ChangePasswordParam>();
     const [messageApi, contextHolder] = useMessage();
 
-    const handleSubmit = async ({ password, confirm }) => {
+    const handleSubmit = async ({ password, confirm }: ChangePasswordParam) => {
         if (!password || !confirm) {
             messageApi.error("请填写完整信息！");
             return;

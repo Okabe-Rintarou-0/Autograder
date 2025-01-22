@@ -4,8 +4,9 @@ import { Administrator, User } from "../model/user";
 import { listUsers } from "../service/user";
 import RoleTag from "../components/role_tag";
 import { PrivateLayout } from "../components/layout";
-import { Button, Card, Table } from "antd";
+import { Button, Card, Space, Table } from "antd";
 import { formatDate } from "../utils/time";
+import RegisterUserModal from "../components/register_user_modal";
 
 export default function UsersPage() {
     const pageSize = 20;
@@ -13,6 +14,16 @@ export default function UsersPage() {
     const [pageNo, setPageNo] = useState<number>(1);
     const [total, setTotal] = useState<number>(0);
     const [users, setUsers] = useState<User[]>([]);
+    const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
+
+    const onRegisterUser = () => {
+        setShowRegisterModal(false);
+        getUsers();
+    };
+
+    const onCancelRegisterUser = () => {
+        setShowRegisterModal(false);
+    };
 
     const getUsers = async () => {
         try {
@@ -60,7 +71,13 @@ export default function UsersPage() {
     return (
         <PrivateLayout forRole={Administrator}>
             {contextHolder}
-            <Card className="card-container" extra={<Button type="primary" onClick={getUsers}>刷新</Button>}>
+            <RegisterUserModal open={showRegisterModal} onOk={onRegisterUser} onCancel={onCancelRegisterUser} />
+            <Card className="card-container" extra={
+                <Space>
+                    <Button type="primary" onClick={() => setShowRegisterModal(true)}>导入</Button>
+                    <Button onClick={getUsers}>刷新</Button>
+                </Space>
+            }>
                 <Table columns={columns} dataSource={users}
                     rowKey="id"
                     pagination={{

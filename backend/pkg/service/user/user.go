@@ -42,7 +42,7 @@ func (s *ServiceImpl) Register(ctx context.Context, request *request.RegisterReq
 	user = &dbm.User{
 		Username: request.Username,
 		RealName: request.RealName,
-		Password: request.Password,
+		Password: utils.Md5(request.Password),
 		Email:    request.Email,
 		Role:     dbm.CommonUser,
 	}
