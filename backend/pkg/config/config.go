@@ -39,6 +39,7 @@ func InitConfig() *Config {
 type Config struct {
 	WorkDir      string       `yaml:"WorkDir"`
 	TestcasesDir string       `yaml:"TestcasesDir"`
+	CanvasToken  string       `yaml:"CanvasToken"`
 	SystemDB     *MysqlConfig `yaml:"SystemDB"`
 	EBookStoreDB *MysqlConfig `yaml:"EBookStoreDB"`
 	Token        *TokenConfig `yaml:"Token"`

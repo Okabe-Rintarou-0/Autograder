@@ -40,7 +40,7 @@ export default function SubmitPage() {
                         rules={[{ required: true }]}
                     >
                         <Select placeholder="请选择您的 JDK 版本">
-                            {supportedJDKVersions.map(version => <Option value={version}>{`JDK ${version}`}</Option>)}
+                            {supportedJDKVersions.map(version => <Option value={version} key={version}>{`JDK ${version}`}</Option>)}
                         </Select>
                     </Form.Item>
                     <Form.Item

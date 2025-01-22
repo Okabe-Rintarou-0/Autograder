@@ -96,6 +96,14 @@ func (h *Handler) HandleGetMe(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+func (h *Handler) HandleGetCourses(c *gin.Context) {
+	courses, err := h.groupSvc.CanvasSvc.ListCourses(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
+	}
+	c.JSON(http.StatusOK, courses)
+}
+
 func (h *Handler) HandleChangePassword(c *gin.Context) {
 	userID := c.Value("userID").(uint)
 	err := h.groupSvc.UserSvc.ChangePassword(c.Request.Context(), userID, c.PostForm("password"))

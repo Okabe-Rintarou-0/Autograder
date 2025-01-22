@@ -4,6 +4,7 @@ export const CommonUser = 1;
 export const Administrator = 2;
 
 export const registerUserURL = "/api/register";
+export const importCanvasUsersURL = "/api/register/canvas";
 
 export interface LoginRequest {
     identifier: string;
@@ -29,4 +30,8 @@ export interface RegisterUserRequest {
     real_name: string;
     email: string;
     password: string;
+}
+
+export interface ImportCanvasUsersRequest {
+    course_id: number;
 }

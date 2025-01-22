@@ -15,20 +15,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type clientImpl struct {
+type ClientImpl struct {
 	innerCli *client.Client
 }
 
-func NewClient() *clientImpl {
+func NewClient() *ClientImpl {
 	innerCli, err := client.NewClientWithOpts()
 	if err != nil {
 		logrus.Fatalf("[Docker client][NewClient] inner client create error %+v", err)
 		panic(err)
 	}
-	return &clientImpl{innerCli}
+	return &ClientImpl{innerCli}
 }
 
-func (c *clientImpl) PullImage(ctx context.Context, imageName string) error {
+func (c *ClientImpl) PullImage(ctx context.Context, imageName string) error {
 	options := image.PullOptions{}
 	resp, err := c.innerCli.ImagePull(ctx, imageName, options)
 	if err != nil {
@@ -43,7 +43,7 @@ func (c *clientImpl) PullImage(ctx context.Context, imageName string) error {
 	return nil
 }
 
-func (c *clientImpl) RemoveContainer(ctx context.Context, containerID string) error {
+func (c *ClientImpl) RemoveContainer(ctx context.Context, containerID string) error {
 	err := c.innerCli.ContainerRemove(ctx, containerID, container.RemoveOptions{
 		Force: true,
 	})
@@ -53,7 +53,7 @@ func (c *clientImpl) RemoveContainer(ctx context.Context, containerID string) er
 	return err
 }
 
-func (c *clientImpl) RunContainer(ctx context.Context, config *entity.DockerCreateConfig) (string, error) {
+func (c *ClientImpl) RunContainer(ctx context.Context, config *entity.DockerCreateConfig) (string, error) {
 	exposedPorts := nat.PortSet{}
 	portBindings := nat.PortMap{}
 	for containerPort, hostPort := range config.PortBindings {
@@ -102,7 +102,7 @@ func (c *clientImpl) RunContainer(ctx context.Context, config *entity.DockerCrea
 	return resp.ID, nil
 }
 
-func (c *clientImpl) ExecuteContainer(ctx context.Context, containerId string, commands []string) (io.Reader, error) {
+func (c *ClientImpl) ExecuteContainer(ctx context.Context, containerId string, commands []string) (io.Reader, error) {
 	execConfig := container.ExecOptions{
 		Cmd:          commands,
 		AttachStdin:  true,

@@ -1,9 +1,10 @@
 package user
 
 import (
-	"autograder/pkg/model/dbm"
 	"context"
 	"errors"
+
+	"autograder/pkg/model/dbm"
 
 	"autograder/pkg/config"
 	"autograder/pkg/dao"

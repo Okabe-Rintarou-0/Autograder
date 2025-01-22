@@ -1,12 +1,13 @@
 package task
 
 import (
-	"autograder/pkg/model/assembler"
 	"context"
 	"io"
 	"path"
 	"strconv"
 	"sync"
+
+	"autograder/pkg/model/assembler"
 
 	"autograder/pkg/dao/docker"
 

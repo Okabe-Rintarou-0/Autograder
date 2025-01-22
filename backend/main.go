@@ -31,12 +31,13 @@ func main() {
 	groupSvc := service.NewGroupService(groupDAO)
 	h := handler.NewHandler(groupSvc)
 	r.Group("/api", interceptor.NewTokenInterceptor(cfg.Token)).
+		GET("/courses", h.HandleGetCourses).
 		GET("/me", h.HandleGetMe).
 		GET("/tasks", h.HandleListAppTasks).
 		GET("/users", h.HandleListUsers).
 		POST("/run", h.HandleRunApp).
-		PUT("/me/password", h.HandleChangePassword).
-		POST("/register", h.HandleRegister)
+		POST("/register", h.HandleRegister).
+		PUT("/me/password", h.HandleChangePassword)
 
 	r.POST("/api/login", h.HandleLogin).
 		GET("/api/logs", h.HandleGetLog)

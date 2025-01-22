@@ -7,6 +7,7 @@ import { PrivateLayout } from "../components/layout";
 import { Button, Card, Space, Table } from "antd";
 import { formatDate } from "../utils/time";
 import RegisterUserModal from "../components/register_user_modal";
+import ImportCanvasUsersModal from "../components/import_canvas_users_modal";
 
 export default function UsersPage() {
     const pageSize = 20;
@@ -15,6 +16,7 @@ export default function UsersPage() {
     const [total, setTotal] = useState<number>(0);
     const [users, setUsers] = useState<User[]>([]);
     const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
+    const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     const onRegisterUser = () => {
         setShowRegisterModal(false);
@@ -23,6 +25,15 @@ export default function UsersPage() {
 
     const onCancelRegisterUser = () => {
         setShowRegisterModal(false);
+    };
+
+    const onImportUsers = () => {
+        setShowImportModal(false);
+        getUsers();
+    };
+
+    const onCancelImportUsers = () => {
+        setShowImportModal(false);
     };
 
     const getUsers = async () => {
@@ -72,9 +83,11 @@ export default function UsersPage() {
         <PrivateLayout forRole={Administrator}>
             {contextHolder}
             <RegisterUserModal open={showRegisterModal} onOk={onRegisterUser} onCancel={onCancelRegisterUser} />
+            <ImportCanvasUsersModal open={showImportModal} onOk={onImportUsers} onCancel={onCancelImportUsers} />
             <Card className="card-container" extra={
                 <Space>
-                    <Button type="primary" onClick={() => setShowRegisterModal(true)}>导入</Button>
+                    <Button type="primary" onClick={() => setShowImportModal(true)}>从 Canvas 导入</Button>
+                    <Button onClick={() => setShowRegisterModal(true)}>导入</Button>
                     <Button onClick={getUsers}>刷新</Button>
                 </Space>
             }>

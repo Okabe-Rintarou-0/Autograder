@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"autograder/pkg/dao/canvas"
 	"autograder/pkg/dao/docker"
 	"autograder/pkg/dao/file"
 	"autograder/pkg/dao/hurl"
@@ -12,6 +13,7 @@ import (
 
 type GroupDAO struct {
 	DockerDAO docker.DAO
+	CanvasDAO canvas.DAO
 	FileDAO   file.DAO
 	HurlDAO   hurl.DAO
 	UserDAO   user.DAO
@@ -22,6 +24,7 @@ func NewGroupDAO(systemDB, _ *gorm.DB) *GroupDAO {
 	return &GroupDAO{
 		DockerDAO: docker.NewDAO(),
 		FileDAO:   file.NewDao(),
+		CanvasDAO: canvas.NewDAO(),
 		HurlDAO:   hurl.NewDAO(),
 		UserDAO:   user.NewDAO(systemDB),
 		TaskDAO:   task.NewDAO(systemDB),

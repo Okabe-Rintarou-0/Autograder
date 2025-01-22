@@ -1,5 +1,6 @@
 WorkDir: "/path/to/work_dir"
 TestcasesDir: "/path/to/testcases/"
+CanvasToken: "token"
 
 SystemDB:
   Username: root

@@ -15,3 +15,13 @@ func Reduce[T any, D any](slice []T, reducer func(sum D, v T) D) D {
 	}
 	return dst
 }
+
+func Filter[T any](slice []T, filter func(v T) bool) []T {
+	var dst []T
+	for _, v := range slice {
+		if filter(v) {
+			dst = append(dst, v)
+		}
+	}
+	return dst
+}
