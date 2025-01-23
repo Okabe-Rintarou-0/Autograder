@@ -1,7 +1,9 @@
 package task
 
 import (
+	"autograder/pkg/utils"
 	"context"
+	"gorm.io/gen"
 
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/repository/query"
@@ -40,35 +42,63 @@ func (d *DaoImpl) SaveIfNotExist(ctx context.Context, tasks ...*dbm.AppRunTask) 
 	}).Save(tasks...)
 }
 
-func (d *DaoImpl) ListUserTasksByPage(ctx context.Context, userID uint, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTask], error) {
+func (d *DaoImpl) ListByPage(ctx context.Context, filter *dbm.TaskFilter, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTaskWithUser], error) {
 	t := query.Use(d.db).AppRunTask
 	offset := (page.PageNo - 1) * page.PageSize
 	var total int64
-	models, total, err := t.WithContext(ctx).
-		Where(t.UserID.Eq(userID)).
+	tasks, total, err := t.WithContext(ctx).
+		Where(d.getConditions(filter)...).
 		Order(t.ID.Desc()).
 		FindByPage(offset, page.PageSize)
+	
 	if err != nil {
 		return nil, err
 	}
-	return &dbm.ModelPage[*dbm.AppRunTask]{
+
+	userIDs := utils.Map(tasks, func(v *dbm.AppRunTask) uint {
+		return v.UserID
+	})
+
+	u := query.Use(d.db).User
+	users, err := u.WithContext(ctx).Where(u.ID.In(userIDs...)).Find()
+	if err != nil {
+		return nil, err
+	}
+	usersMap := utils.IntoMap(users, func(v *dbm.User) uint {
+		return v.ID
+	})
+
+	var models []*dbm.AppRunTaskWithUser
+	for _, task := range tasks {
+		user, ok := usersMap[task.UserID]
+		if !ok {
+			continue
+		}
+		models = append(models, &dbm.AppRunTaskWithUser{
+			Model:       task.Model,
+			UUID:        task.UUID,
+			UserID:      task.UserID,
+			Username:    user.Username,
+			RealName:    user.RealName,
+			Email:       user.Email,
+			Status:      task.Status,
+			Pass:        task.Pass,
+			Total:       task.Total,
+			TestResults: task.TestResults,
+		})
+	}
+
+	return &dbm.ModelPage[*dbm.AppRunTaskWithUser]{
 		Total: total,
 		Items: models,
 	}, err
 }
 
-func (d *DaoImpl) ListTasksByPage(ctx context.Context, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTask], error) {
+func (d *DaoImpl) getConditions(filter *dbm.TaskFilter) []gen.Condition {
 	t := query.Use(d.db).AppRunTask
-	offset := (page.PageNo - 1) * page.PageSize
-	var total int64
-	models, total, err := t.WithContext(ctx).
-		Order(t.ID.Desc()).
-		FindByPage(offset, page.PageSize)
-	if err != nil {
-		return nil, err
+	var conditions []gen.Condition
+	if filter.UserID != nil {
+		conditions = append(conditions, t.UserID.Eq(*filter.UserID))
 	}
-	return &dbm.ModelPage[*dbm.AppRunTask]{
-		Total: total,
-		Items: models,
-	}, err
+	return conditions
 }

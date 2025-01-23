@@ -23,7 +23,7 @@ type AppRunTask struct {
 	TestResults *string `gorm:"type:json"`
 }
 
-type AppRunTaskListResult struct {
+type AppRunTaskWithUser struct {
 	gorm.Model
 
 	UUID        string
@@ -35,4 +35,8 @@ type AppRunTaskListResult struct {
 	Pass        int32
 	Total       int32
 	TestResults *string
+}
+
+type TaskFilter struct {
+	UserID *uint
 }

@@ -1,7 +1,9 @@
+import useSWR from 'swr';
 import axios from "axios";
 import { ListUsersResponse, LoginRequest, LoginResponse, User } from "../model/user";
 import { removeToken } from './token';
 import { BaseResp } from '../model/resp';
+import { fetcher } from './common';
 
 export async function login(request: LoginRequest) {
     const formData = new FormData();
@@ -35,7 +37,6 @@ export async function changePassword(newPassword: string) {
     return resp.data;
 }
 
-export async function listUsers(keyword: string, pageNo: number, pageSize: number) {
-    const resp = await axios.get<ListUsersResponse>(`/api/users?keyword=${keyword}&page_no=${pageNo}&page_size=${pageSize}`);
-    return resp.data;
+export function useUsers(keyword: string, pageNo: number, pageSize: number) {
+    return useSWR<ListUsersResponse>(`/api/users?keyword=${keyword}&page_no=${pageNo}&page_size=${pageSize}`, fetcher);
 }

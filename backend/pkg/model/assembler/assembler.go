@@ -6,10 +6,13 @@ import (
 	"autograder/pkg/model/response"
 )
 
-func ConvertAppRunTaskDbmToResponse(m *dbm.AppRunTask) *response.AppRunTask {
+func ConvertAppRunTaskDbmToResponse(m *dbm.AppRunTaskWithUser) *response.AppRunTask {
 	return &response.AppRunTask{
 		UUID:        m.UUID,
 		UserID:      m.UserID,
+		Username:    m.Username,
+		Email:       m.Email,
+		RealName:    m.RealName,
 		Status:      m.Status,
 		CreatedAt:   m.CreatedAt,
 		Pass:        m.Pass,

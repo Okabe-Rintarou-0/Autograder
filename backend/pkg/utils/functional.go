@@ -1,5 +1,9 @@
 package utils
 
+type mapKey interface {
+	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | string
+}
+
 func Map[T any, D any](slice []T, mapper func(v T) D) []D {
 	var dst []D
 	for _, v := range slice {
@@ -22,6 +26,14 @@ func Filter[T any](slice []T, filter func(v T) bool) []T {
 		if filter(v) {
 			dst = append(dst, v)
 		}
+	}
+	return dst
+}
+
+func IntoMap[T any, K mapKey](slice []T, mapper func(v T) K) map[K]T {
+	var dst map[K]T
+	for _, v := range slice {
+		dst[mapper(v)] = v
 	}
 	return dst
 }

@@ -11,6 +11,5 @@ type DAO interface {
 	FindByUUID(ctx context.Context, UUID string) (*dbm.AppRunTask, error)
 	Save(ctx context.Context, tasks ...*dbm.AppRunTask) error
 	SaveIfNotExist(ctx context.Context, tasks ...*dbm.AppRunTask) error
-	ListUserTasksByPage(ctx context.Context, userID uint, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTask], error)
-	ListTasksByPage(ctx context.Context, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTask], error)
+	ListByPage(ctx context.Context, filter *dbm.TaskFilter, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTaskWithUser], error)
 }

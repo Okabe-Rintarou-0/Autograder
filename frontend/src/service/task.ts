@@ -3,6 +3,8 @@ import { AppInfo, SubmitAppResponse, ListAppTasksResponse } from '../model/app';
 import { GetProp, UploadProps } from 'antd';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+const fetcher = (url: string) => axios.get(url).then(res => res.data);
+
 
 export async function submitApp(info: AppInfo) {
     const formData = new FormData();

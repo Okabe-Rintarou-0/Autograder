@@ -1,7 +1,8 @@
-import axios from "axios";
+import useSWR from "swr";
+import { fetcher } from "./common";
 import { Course } from "../model/canvas/course";
 
-export async function listCourses() {
-    const resp = await axios.get<Course[]>("/api/courses");
-    return resp.data;
+export function useCourses(shouldFetch: boolean = true) {
+    const key = shouldFetch ? "/api/courses" : null;
+    return useSWR<Course[]>(key, fetcher);
 }

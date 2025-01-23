@@ -1,6 +1,8 @@
 import axios from "axios";
 import { BaseResp } from "../model/resp";
 
+export const fetcher = (url: string) => axios.get(url).then(res => res.data);
+
 export async function submit<R extends BaseResp>(url: string, params: any) {
     const formData = new FormData();
     for (const key in params) {
