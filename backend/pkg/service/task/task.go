@@ -7,15 +7,13 @@ import (
 	"strconv"
 	"sync"
 
-	"autograder/pkg/model/assembler"
-
-	"autograder/pkg/dao/docker"
-
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/sirupsen/logrus"
 
 	"autograder/pkg/config"
 	"autograder/pkg/dao"
+	"autograder/pkg/dao/docker"
+	"autograder/pkg/model/assembler"
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/model/entity"
 	"autograder/pkg/model/response"

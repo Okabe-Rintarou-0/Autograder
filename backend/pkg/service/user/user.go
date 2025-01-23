@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"golang.org/x/sync/errgroup"
+
 	"autograder/pkg/model/dbm"
 
 	"autograder/pkg/config"
@@ -25,6 +27,41 @@ type ServiceImpl struct {
 
 func NewService(groupDAO *dao.GroupDAO) *ServiceImpl {
 	return &ServiceImpl{groupDAO}
+}
+
+func (s *ServiceImpl) ImportCanvasUsers(ctx context.Context, courseID int64) (*response.ImportCanvasUsers, error) {
+	users, err := s.groupDAO.CanvasDAO.ListCourseUsers(ctx, courseID)
+	if err != nil {
+		logrus.Errorf("[User Service][ImportCanvasUsers] CanvasDAO.ListCourseUsers error: %v", err)
+		return nil, err
+	}
+
+	logrus.Infof("[User Service][ImportCanvasUsers] CanvasDAO.ListCourseUsers: %s", utils.FormatJsonString(users))
+
+	eg, _ := errgroup.WithContext(ctx)
+	for _, user := range users {
+		if user.Email == nil {
+			logrus.Warnf("[User Service][ImportCanvasUsers] user's email is nil")
+			continue
+		}
+		eg.Go(func() error {
+			req := &request.RegisterRequest{
+				Username: user.LoginId,
+				RealName: user.ShortName,
+				Email:    *user.Email,
+				Password: user.LoginId,
+			}
+			_, err := s.Register(ctx, req)
+			return err
+		})
+	}
+	if err = eg.Wait(); err != nil {
+		logrus.Errorf("[User Service][ImportCanvasUsers] register error: %v", err)
+		return nil, err
+	}
+	return &response.ImportCanvasUsers{
+		BaseResp: response.NewSucceedBaseResp(messages.ImportSucceed),
+	}, nil
 }
 
 func (s *ServiceImpl) Register(ctx context.Context, request *request.RegisterRequest) (*response.RegisterResponse, error) {
@@ -103,8 +140,17 @@ func (s *ServiceImpl) ChangePassword(ctx context.Context, userID uint, newPasswo
 	return s.groupDAO.UserDAO.Save(ctx, user)
 }
 
-func (s *ServiceImpl) ListUsers(ctx context.Context, page *entity.Page) (*response.ListUsersResponse, error) {
-	modelPage, err := s.groupDAO.UserDAO.ListByPage(ctx, page.ToDBM())
+func (s *ServiceImpl) ListUsers(ctx context.Context, keyword string, page *entity.Page) (*response.ListUsersResponse, error) {
+	var filter *dbm.UserFilter
+	if len(keyword) > 0 {
+		filter = &dbm.UserFilter{
+			RealName: &keyword,
+			Username: &keyword,
+			Email:    &keyword,
+			Or:       true,
+		}
+	}
+	modelPage, err := s.groupDAO.UserDAO.ListByPage(ctx, filter, page.ToDBM())
 	if err != nil {
 		logrus.Errorf("[User Service][ListUsers] call UserDAO.ListByPage error %+v", err)
 		return nil, err

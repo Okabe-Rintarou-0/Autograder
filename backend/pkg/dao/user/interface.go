@@ -10,5 +10,5 @@ type DAO interface {
 	FindById(ctx context.Context, id uint) (*dbm.User, error)
 	FindByUsernameOrEmail(ctx context.Context, username, email string) (*dbm.User, error)
 	Save(ctx context.Context, users ...*dbm.User) error
-	ListByPage(ctx context.Context, page *dbm.Page) (*dbm.ModelPage[*dbm.User], error)
+	ListByPage(ctx context.Context, filter *dbm.UserFilter, page *dbm.Page) (*dbm.ModelPage[*dbm.User], error)
 }

@@ -22,3 +22,17 @@ type AppRunTask struct {
 
 	TestResults *string `gorm:"type:json"`
 }
+
+type AppRunTaskListResult struct {
+	gorm.Model
+
+	UUID        string
+	UserID      uint
+	Username    string
+	RealName    string
+	Email       string
+	Status      int32
+	Pass        int32
+	Total       int32
+	TestResults *string
+}

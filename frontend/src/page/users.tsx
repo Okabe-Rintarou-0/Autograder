@@ -4,10 +4,11 @@ import { Administrator, User } from "../model/user";
 import { listUsers } from "../service/user";
 import RoleTag from "../components/role_tag";
 import { PrivateLayout } from "../components/layout";
-import { Button, Card, Space, Table } from "antd";
+import { Button, Card, Input, Space, Table } from "antd";
 import { formatDate } from "../utils/time";
 import RegisterUserModal from "../components/register_user_modal";
 import ImportCanvasUsersModal from "../components/import_canvas_users_modal";
+import Search from "antd/es/input/Search";
 
 export default function UsersPage() {
     const pageSize = 20;
@@ -17,6 +18,7 @@ export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
+    const [keyword, setKeyword] = useState<string>("");
 
     const onRegisterUser = () => {
         setShowRegisterModal(false);
@@ -38,7 +40,7 @@ export default function UsersPage() {
 
     const getUsers = async () => {
         try {
-            const resp = await listUsers(pageNo, pageSize);
+            const resp = await listUsers(keyword, pageNo, pageSize);
             setUsers(resp.data);
             setTotal(resp.total);
         } catch (e) {
@@ -48,7 +50,7 @@ export default function UsersPage() {
 
     useEffect(() => {
         getUsers();
-    }, []);
+    }, [keyword, pageNo]);
 
     const columns = [{
         title: '创建时间',
@@ -84,13 +86,17 @@ export default function UsersPage() {
             {contextHolder}
             <RegisterUserModal open={showRegisterModal} onOk={onRegisterUser} onCancel={onCancelRegisterUser} />
             <ImportCanvasUsersModal open={showImportModal} onOk={onImportUsers} onCancel={onCancelImportUsers} />
-            <Card className="card-container" extra={
-                <Space>
-                    <Button type="primary" onClick={() => setShowImportModal(true)}>从 Canvas 导入</Button>
-                    <Button onClick={() => setShowRegisterModal(true)}>导入</Button>
-                    <Button onClick={getUsers}>刷新</Button>
-                </Space>
-            }>
+            <Card className="card-container"
+                title={
+                    <Input.Search style={{ width: "200px" }} placeholder="输入关键词" onSearch={setKeyword} />
+                }
+                extra={
+                    <Space>
+                        <Button type="primary" onClick={() => setShowImportModal(true)}>从 Canvas 导入</Button>
+                        <Button onClick={() => setShowRegisterModal(true)}>导入</Button>
+                        <Button onClick={getUsers}>刷新</Button>
+                    </Space>
+                }>
                 <Table columns={columns} dataSource={users}
                     rowKey="id"
                     pagination={{
@@ -98,9 +104,7 @@ export default function UsersPage() {
                         total,
                         current: pageNo,
                         onChange: (pageNo: number) => {
-                            console.log(pageNo);
                             setPageNo(pageNo);
-                            getUsers();
                         }
                     }}
                 >

@@ -11,3 +11,7 @@ type RegisterRequest struct {
 	Email    string `json:"email,omitempty" form:"email" binding:"required"`
 	Password string `json:"password,omitempty" form:"password" binding:"required"`
 }
+
+type ImportCanvasUsersRequest struct {
+	CourseID int64 `json:"course_id" form:"course_id" binding:"required"`
+}

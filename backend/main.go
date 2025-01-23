@@ -37,6 +37,7 @@ func main() {
 		GET("/users", h.HandleListUsers).
 		POST("/run", h.HandleRunApp).
 		POST("/register", h.HandleRegister).
+		POST("/register/canvas", h.HandleImportCanvasUsers).
 		PUT("/me/password", h.HandleChangePassword)
 
 	r.POST("/api/login", h.HandleLogin).

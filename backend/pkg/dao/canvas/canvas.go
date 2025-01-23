@@ -1,12 +1,13 @@
 package canvas
 
 import (
-	"autograder/pkg/utils"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"autograder/pkg/utils"
 
 	"github.com/sirupsen/logrus"
 

@@ -163,9 +163,10 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 
 func (h *Handler) HandleListUsers(c *gin.Context) {
 	page := getPage(c)
+	keyword := c.Query("keyword")
 
 	logrus.Infof("[Handler][HandleListUsers] request page: %s", utils.FormatJsonString(page))
-	resp, err := h.groupSvc.UserSvc.ListUsers(c.Request.Context(), page)
+	resp, err := h.groupSvc.UserSvc.ListUsers(c.Request.Context(), keyword, page)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleListUsers] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -229,6 +230,23 @@ func (h *Handler) HandleRegister(c *gin.Context) {
 	resp, err := h.groupSvc.UserSvc.Register(c.Request.Context(), &req)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleRegister] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) HandleImportCanvasUsers(c *gin.Context) {
+	req := request.ImportCanvasUsersRequest{}
+	if err := c.Bind(&req); err != nil {
+		logrus.Errorf("[Handler][HandleImportCanvasUsers] request bind error: %+v", err)
+		return
+	}
+	logrus.Infof("[Handler][HandleImportCanvasUsers] request: %s", utils.FormatJsonString(req))
+	resp, err := h.groupSvc.UserSvc.ImportCanvasUsers(c.Request.Context(), req.CourseID)
+	if err != nil {
+		logrus.Errorf("[Handler][HandleImportCanvasUsers] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}

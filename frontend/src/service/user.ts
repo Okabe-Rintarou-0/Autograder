@@ -35,7 +35,7 @@ export async function changePassword(newPassword: string) {
     return resp.data;
 }
 
-export async function listUsers(pageNo: number, pageSize: number) {
-    const resp = await axios.get<ListUsersResponse>(`/api/users?page_no=${pageNo}&page_size=${pageSize}`);
+export async function listUsers(keyword: string, pageNo: number, pageSize: number) {
+    const resp = await axios.get<ListUsersResponse>(`/api/users?keyword=${keyword}&page_no=${pageNo}&page_size=${pageSize}`);
     return resp.data;
 }

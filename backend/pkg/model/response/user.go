@@ -12,6 +12,10 @@ type RegisterResponse struct {
 	*BaseResp
 }
 
+type ImportCanvasUsers struct {
+	*BaseResp
+}
+
 type GetMeResponse struct {
 	UserID   uint   `json:"user_id,omitempty"`
 	Username string `json:"username,omitempty"`
