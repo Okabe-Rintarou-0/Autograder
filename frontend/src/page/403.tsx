@@ -1,6 +1,6 @@
+import { Button, Result } from "antd";
 import { useNavigate } from "react-router-dom";
 import { BasicLayout } from "../components/layout";
-import { Button, Result } from "antd";
 
 export default function UnauthorizedPage() {
     const navigate = useNavigate();

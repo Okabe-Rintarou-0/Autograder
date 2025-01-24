@@ -1,6 +1,7 @@
 package interceptor
 
 import (
+	"autograder/pkg/dao"
 	"net/http"
 	"time"
 
@@ -12,6 +13,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+func NewRoleInterceptor(role int32, groupDAO *dao.GroupDAO) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID := c.Value("userID").(uint)
+		user, err := groupDAO.UserDAO.FindById(c.Request.Context(), userID)
+		if err != nil {
+			logrus.Errorf("[TokenIntercept] error %+v", err)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+			return
+		}
+		if user.Role != role {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+		c.Next()
+	}
+}
 
 func NewTokenInterceptor(cfg *config.TokenConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {

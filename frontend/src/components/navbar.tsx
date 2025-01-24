@@ -1,16 +1,14 @@
+import { FormOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, Row, Space } from "antd";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User } from "../model/user";
-import { FormOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { logout } from "../service/user";
-import useMessage from "antd/es/message/useMessage";
 import ChangePasswordModal from "./change_password_modal";
 import RoleTag from "./role_tag";
 
 export default function NavBar({ me }: { me?: User }) {
     const [showModal, setShowModal] = useState(false);
-    const [messageApi, contextHolder] = useMessage();
     const navigate = useNavigate();
 
     const handleOpenModal = () => {
@@ -60,7 +58,6 @@ export default function NavBar({ me }: { me?: User }) {
 
     return (
         <Row className="navbar" justify="start">
-            {contextHolder}
             <Col>
                 <Link to="/">Book Store</Link>
             </Col>

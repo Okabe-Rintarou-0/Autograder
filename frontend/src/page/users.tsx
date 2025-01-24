@@ -1,15 +1,15 @@
+import { useMemoizedFn } from "ahooks";
+import { Button, Card, Input, Space, Table } from "antd";
 import useMessage from "antd/es/message/useMessage";
 import { useState } from "react";
+import ImportCanvasUsersForm from "../components/import_canvas_users_form";
+import { PrivateLayout } from "../components/layout";
+import RegisterUserForm from "../components/register_user_form";
+import RoleTag from "../components/role_tag";
+import { useModal } from "../lib/hooks";
 import { Administrator } from "../model/user";
 import { useUsers } from "../service/user";
-import RoleTag from "../components/role_tag";
-import { PrivateLayout } from "../components/layout";
-import { Button, Card, Input, Space, Table } from "antd";
 import { formatDate } from "../utils/time";
-import RegisterUserForm from "../components/register_user_form";
-import ImportCanvasUsersForm from "../components/import_canvas_users_form";
-import { useModal } from "../lib/hooks";
-import { useMemoizedFn } from "ahooks";
 
 const columns = [{
     title: '创建时间',
@@ -50,7 +50,7 @@ export default function UsersPage() {
     const { modal: RegisterUserModal,
         open: openRegisterUserModal,
         close: closeRegisterUserModal,
-    } = useModal(RegisterUserForm);
+    } = useModal(RegisterUserForm, {});
 
     const { modal: ImportCanvasUsersModal,
         open: openImportCanvasUsersModal,

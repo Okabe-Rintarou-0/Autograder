@@ -54,6 +54,22 @@ func (c *DAOImpl) ListCourses(ctx context.Context) ([]*canvas.Course, error) {
 	}), nil
 }
 
+func (c *DAOImpl) ListAssignments(ctx context.Context, courseID int64) ([]*canvas.Assignment, error) {
+	URL := fmt.Sprintf(
+		"%s/api/v1/courses/%d/assignments?include[]=submission",
+		BASEURL, courseID,
+	)
+	return listItems[canvas.Assignment](c.innerCli, URL, c.token)
+}
+
+func (c *DAOImpl) ListAssignmentSubmissions(ctx context.Context, courseID, assignmentID int64) ([]*canvas.Submission, error) {
+	URL := fmt.Sprintf(
+		"%s/api/v1/courses/%d/assignments/%d/submissions",
+		BASEURL, courseID, assignmentID,
+	)
+	return listItems[canvas.Submission](c.innerCli, URL, c.token)
+}
+
 func (c *DAOImpl) ListCourseUsers(ctx context.Context, courseID int64) ([]*canvas.User, error) {
 	URL := fmt.Sprintf(
 		"%s/api/v1/courses/%d/users",

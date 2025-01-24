@@ -2,6 +2,7 @@ package handler
 
 import (
 	"autograder/pkg/model/dbm"
+	"autograder/pkg/model/request/canvas"
 	"fmt"
 	"io"
 	"net/http"
@@ -53,6 +54,7 @@ func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
 	}
 
 	file := req.File
+	logrus.Infof("[validateParams] file: %+v", file)
 	fileExt := filepath.Ext(file.Filename)
 	if fileExt != ".zip" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type, only zip files are allowed"})
@@ -103,6 +105,45 @@ func (h *Handler) HandleGetCourses(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
 	}
 	c.JSON(http.StatusOK, courses)
+}
+
+func (h *Handler) HandleGetAssignments(c *gin.Context) {
+	req := canvas.GetAssignmentsRequest{}
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to bind request"})
+		return
+	}
+	assignments, err := h.groupSvc.CanvasSvc.ListAssignments(c.Request.Context(), req.CourseID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
+	}
+	c.JSON(http.StatusOK, assignments)
+}
+
+func (h *Handler) HandleGetCourseUsers(c *gin.Context) {
+	req := canvas.GetUsersRequest{}
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to bind request"})
+		return
+	}
+	users, err := h.groupSvc.CanvasSvc.ListCourseUsers(c.Request.Context(), req.CourseID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
+	}
+	c.JSON(http.StatusOK, users)
+}
+
+func (h *Handler) HandleGetAssignmentSubmissions(c *gin.Context) {
+	req := canvas.GetAssignmentSubmissionsRequest{}
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to bind request"})
+		return
+	}
+	submissions, err := h.groupSvc.CanvasSvc.ListAssignmentSubmissions(c.Request.Context(), req.CourseID, req.AssignmentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
+	}
+	c.JSON(http.StatusOK, submissions)
 }
 
 func (h *Handler) HandleChangePassword(c *gin.Context) {

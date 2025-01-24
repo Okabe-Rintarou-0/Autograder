@@ -1,10 +1,15 @@
-import { Button, Card, Form, Select } from "antd";
-import { PrivateLayout } from "../components/layout";
-import { AppInfo } from "../model/app";
-import { submitApp } from "../service/task";
+import { useMemoizedFn } from "ahooks";
+import { Button, Card, Form, Select, UploadFile } from "antd";
 import useMessage from "antd/es/message/useMessage";
-import { handleBaseResp } from "../utils/handle_resp";
+import { PrivateLayout } from "../components/layout";
+import SelectSubmissionForm from "../components/select_submission_form";
 import { ZipUpload } from "../components/upload";
+import { useModal } from "../lib/hooks";
+import { AppInfo } from "../model/app";
+import { Attachment } from "../model/canvas/course";
+import { submitApp } from "../service/task";
+import { urlToFile } from "../utils/file";
+import { handleBaseResp } from "../utils/handle_resp";
 
 const supportedJDKVersions = [11, 17]
 const { Option } = Select;
@@ -12,7 +17,29 @@ const { Option } = Select;
 export default function SubmitPage() {
     const [form] = Form.useForm<AppInfo>();
     const [messageApi, contextHolder] = useMessage();
+    const onSubmit = useMemoizedFn(async (attachment: Attachment) => {
+        console.log("attach", attachment);
+        const file = await urlToFile(attachment.url, attachment.display_name);
+        const uploadFile: UploadFile = {
+            uid: attachment.display_name,
+            name: attachment.display_name,
+            url: attachment.url,
+            originFileObj: {
+                lastModifiedDate: new Date(),
+                uid: attachment.display_name,
+                ...file
+            },
+        }
+        form.setFieldValue("file", [uploadFile]);
+        closeSelectSubmissionModal();
+    })
+    const {
+        modal: SelectSubmissionModal,
+        open: openSelectSubmissionModal,
+        close: closeSelectSubmissionModal,
+    } = useModal(SelectSubmissionForm, { onSubmit })
     const handleSubmit = async (appInfo: AppInfo) => {
+        console.log(appInfo)
         form.setFieldValue("file", []);
         try {
             const resp = await submitApp(appInfo);
@@ -26,7 +53,12 @@ export default function SubmitPage() {
     return (
         <PrivateLayout>
             {contextHolder}
-            <Card className="card-container">
+            <SelectSubmissionModal destroyOnClose title="从 Canvas 中导入"
+                footer={null} height={800} width={"80%"} onCancel={closeSelectSubmissionModal}
+            />
+            <Card className="card-container"
+                title={<Button type="primary" onClick={openSelectSubmissionModal}>从 Canvas 中导入</Button>}
+            >
                 <Form
                     form={form}
                     layout="vertical"
@@ -62,6 +94,7 @@ export default function SubmitPage() {
                     >
                         <ZipUpload />
                     </Form.Item>
+
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
                             提交

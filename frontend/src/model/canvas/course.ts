@@ -31,3 +31,83 @@ export interface Enrollment {
     user_id: number;
     enrollment_state: string;
 }
+
+
+export interface Assignment {
+    id: number;
+    key: number;
+    needs_grading_count: number | null;
+    description: string | null;
+    due_at?: string | null;
+    unlock_at?: string;
+    lock_at?: string;
+    points_possible?: number;
+    course_id: number;
+    name: string;
+    html_url: string;
+    submission_types: string[];
+    allowed_extensions: string[];
+    published: boolean;
+    has_submitted_submissions: boolean;
+    submission?: Submission;
+}
+
+export interface AssignmentDate {
+    id: number;
+    base: boolean;
+    title: string;
+    due_at: string | null;
+    unlock_at: string | null;
+    lock_at: string | null;
+}
+
+export interface AssignmentOverride {
+    id: number;
+    pub_id: number;
+    assignment_id: number;
+    quiz_id: number;
+    context_module_id: number;
+    student_ids: number[];
+    group_id: number;
+    course_section_id: number;
+    title: string;
+    due_at: string | null;
+    all_day: boolean;
+    all_day_date: string;
+    unlock_at: string | null;
+    lock_at: string | null;
+}
+
+export type WorkflowState = "submitted" | "unsubmitted" | "graded" | "pending_review";
+
+export interface Submission {
+    id: number;
+    key: number;
+    grade: string | null;
+    submitted_at?: string;
+    assignment_id: number;
+    user_id: number;
+    late: boolean;
+    attachments?: Attachment[];
+    workflow_state: WorkflowState;
+}
+
+export interface Attachment {
+    key: React.Key;
+    user?: string;
+    user_id: number;
+    submitted_at?: string;
+    grade: string | null;
+    id: number;
+    late: boolean;
+    uuid: string;
+    folder_id: number | null;
+    display_name: string;
+    filename: string;
+    "content-type": string;
+    url: string;
+    size: number;
+    locked: boolean;
+    mime_class: string;
+    preview_url: string;
+}

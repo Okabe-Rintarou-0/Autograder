@@ -1,14 +1,14 @@
 import { Button, Form, Input } from "antd";
 import useMessage from "antd/es/message/useMessage";
-import { handleBaseResp } from "../utils/handle_resp";
+import { ModalChildrenProps } from "../lib/hooks";
+import { BaseResp } from "../model/resp";
 import { RegisterUserRequest, registerUserURL } from "../model/user";
 import { submit } from "../service/common";
-import { BaseResp } from "../model/resp";
-import { ModalChildrenProps } from "../lib/hooks";
+import { handleBaseResp } from "../utils/handle_resp";
 
 const { Password } = Input;
 
-export default function RegisterUserForm(props: ModalChildrenProps<void>) {
+export default function RegisterUserForm(props: ModalChildrenProps) {
     const [form] = Form.useForm<RegisterUserRequest>();
     const [messageApi, contextHolder] = useMessage();
 

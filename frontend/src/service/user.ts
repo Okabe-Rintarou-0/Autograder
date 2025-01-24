@@ -1,9 +1,9 @@
-import useSWR from 'swr';
 import axios from "axios";
-import { ListUsersResponse, LoginRequest, LoginResponse, User } from "../model/user";
-import { removeToken } from './token';
+import useSWR from 'swr';
 import { BaseResp } from '../model/resp';
+import { ListUsersResponse, LoginRequest, LoginResponse, User } from "../model/user";
 import { fetcher } from './common';
+import { removeToken } from './token';
 
 export async function login(request: LoginRequest) {
     const formData = new FormData();

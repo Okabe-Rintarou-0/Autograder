@@ -1,15 +1,15 @@
+import { useMemoizedFn } from "ahooks";
 import { Button, Form } from "antd";
-import { ImportCanvasUsersRequest, importCanvasUsersURL } from "../model/user";
 import useMessage from "antd/es/message/useMessage";
-import { submit } from "../service/common";
+import { ModalChildrenProps } from "../lib/hooks";
 import { BaseResp } from "../model/resp";
+import { ImportCanvasUsersRequest, importCanvasUsersURL } from "../model/user";
+import { useCourses } from "../service/canvas";
+import { submit } from "../service/common";
 import { handleBaseResp } from "../utils/handle_resp";
 import CourseSelect from "./course_select";
-import { useCourses } from "../service/canvas";
-import { useMemoizedFn } from "ahooks";
-import { ModalChildrenProps } from "../lib/hooks";
 
-export default function ImportCanvasUsersForm(props: ModalChildrenProps<void>) {
+export default function ImportCanvasUsersForm(props: ModalChildrenProps) {
     const [form] = Form.useForm<ImportCanvasUsersRequest>();
     const [messageApi, contextHolder] = useMessage();
     const courses = useCourses(props.isOpen);
