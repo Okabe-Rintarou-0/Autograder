@@ -8,6 +8,12 @@ type SubmitAppRequest struct {
 	AuthenticationType int64                 `form:"authentication_type" binding:"required"`
 }
 
+type ListAppRunTasksRequest struct {
+	PageNo   int   `form:"page_no" binding:"required"`
+	PageSize int   `form:"page_size" binding:"required"`
+	UserID   *uint `form:"user_id"`
+}
+
 type GetLogRequest struct {
 	LogType string `form:"log_type" binding:"required"`
 	UUID    string `form:"uuid" binding:"required"`

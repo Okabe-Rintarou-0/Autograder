@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"autograder/pkg/model/dbm"
 	"fmt"
 	"io"
 	"net/http"
@@ -142,7 +143,12 @@ func (h *Handler) HandleRunApp(c *gin.Context) {
 }
 
 func (h *Handler) HandleListAppTasks(c *gin.Context) {
-	page := getPage(c)
+	req := request.ListAppRunTasksRequest{}
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	userID := c.Value("userID").(uint)
 	user, err := h.groupSvc.UserSvc.GetUser(c.Request.Context(), userID)
 	if err != nil {
@@ -150,8 +156,19 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 		return
 	}
 
-	logrus.Infof("[Handler][HandleListAppTasks] request page: %s", utils.FormatJsonString(page))
-	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userID, user.Role, page)
+	page := &entity.Page{
+		PageNo:   req.PageNo,
+		PageSize: req.PageSize,
+	}
+	logrus.Infof("[Handler][HandleListAppTasks] request: %s", utils.FormatJsonString(req))
+
+	var userIDPtr *uint
+	if user.Role != dbm.Administrator {
+		userIDPtr = &userID
+	} else {
+		userIDPtr = req.UserID
+	}
+	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userIDPtr, page)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleListAppTasks] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

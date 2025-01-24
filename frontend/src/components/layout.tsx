@@ -6,6 +6,7 @@ import { Header } from 'antd/lib/layout/layout';
 import NavBar from './navbar';
 import { Administrator, User } from '../model/user';
 import { getMe } from '../service/user';
+import { UserContext } from '../lib/context';
 const { Content, Footer, Sider } = Layout;
 
 export interface BasicLayoutProps {
@@ -38,7 +39,6 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
         }
         return items;
     }
-
     const parts = useLocation().pathname.split('/');
     const selectedKeys = [parts[parts.length - 1]];
     const {
@@ -54,7 +54,11 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
                 {!noSider && <Sider style={{ background: colorBgContainer }} width={200} >
                     <Menu defaultSelectedKeys={selectedKeys} items={getItems()} mode="inline" style={{ height: '100%' }} />
                 </Sider>}
-                <Content style={{ padding: '0 24px', minHeight: 280 }}>{children}</Content>
+                <Content style={{ padding: '0 24px', minHeight: 280 }}>
+                    <UserContext.Provider value={me}>
+                        {children}
+                    </UserContext.Provider>
+                </Content>
             </Layout>
         </Content>
         <Footer className="footer">

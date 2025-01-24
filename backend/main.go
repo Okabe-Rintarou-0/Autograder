@@ -1,6 +1,7 @@
 package main
 
 import (
+	"autograder/db_http_server"
 	"autograder/pkg/config"
 	"autograder/pkg/dal/mysql"
 	"autograder/pkg/dao"
@@ -17,6 +18,8 @@ func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
+	go db_http_server.RunDBHTTPServer()
+	
 	r := gin.Default()
 	cfg := config.Instance
 	systemDB, err := mysql.NewDB(cfg.SystemDB)

@@ -3,6 +3,7 @@ import { AppInfo, SubmitAppResponse, ListAppTasksResponse } from '../model/app';
 import { GetProp, UploadProps } from 'antd';
 import useSWR from 'swr';
 import { fetcher } from './common';
+import { useId } from 'react';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
@@ -21,8 +22,13 @@ export async function submitApp(info: AppInfo) {
     return resp.data;
 }
 
-export function useTasks(pageNo: number, pageSize: number) {
-    return useSWR<ListAppTasksResponse>(`/api/tasks?page_no=${pageNo}&page_size=${pageSize}`, fetcher);
+export function useTasks(pageNo: number, pageSize: number, userID?: number) {
+    let url = `/api/tasks?page_no=${pageNo}&page_size=${pageSize}`
+    if (userID) {
+        url += `&user_id=${userID}`;
+    }
+    console.log(url);
+    return useSWR<ListAppTasksResponse>(url, fetcher);
 }
 
 export async function readLog(uuid: string, logType: string) {

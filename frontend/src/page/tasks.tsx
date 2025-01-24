@@ -2,7 +2,7 @@ import { Badge, Button, Card, Select, Space, Spin, Table, Tabs, Tag, Tooltip } f
 import { PrivateLayout } from "../components/layout";
 import { useTasks } from "../service/task";
 import useMessage from "antd/es/message/useMessage";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { LazyLog } from "@melloware/react-logviewer";
 import { AppRunTask } from "../model/app";
 import { AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting } from "../model/app";
@@ -11,8 +11,10 @@ import ReactJson from "react-json-view-ts";
 import { formatDate } from "../utils/time";
 import { useDebounceFn } from "ahooks";
 import { listUsers } from "../service/user";
-import { User } from "../model/user";
+import { Administrator, User } from "../model/user";
+import { UserContext } from "../lib/context";
 
+const pageSize = 20;
 const columns = [{
     title: '创建者',
     dataIndex: 'real_name',
@@ -63,7 +65,7 @@ const columns = [{
 }];
 
 export default function TaskPage() {
-    const pageSize = 20;
+    const me = useContext(UserContext);
     const [messageApi, contextHolder] = useMessage();
     const [fetching, setFetching] = useState<boolean>(false);
     const [pageNo, setPageNo] = useState<number>(1);
@@ -72,7 +74,8 @@ export default function TaskPage() {
     const [userPageNo, setUserPageNo] = useState<number>(1);
     const [userKeyword, setUserKeyword] = useState<string>("");
     const [userHasNextPage, setUserHasNextPage] = useState<boolean>(false);
-    const tasks = useTasks(pageNo, pageSize);
+    const [selectedUserID, setSelectedUserID] = useState<number | undefined>();
+    const tasks = useTasks(pageNo, pageSize, selectedUserID);
 
     useEffect(() => {
         tasks.mutate();
@@ -127,7 +130,7 @@ export default function TaskPage() {
             }
         },
         {
-            wait: 800,
+            wait: 400,
         }
     );
 
@@ -162,6 +165,7 @@ export default function TaskPage() {
                 title={<Select
                     style={{ width: "200px" }}
                     showSearch
+                    onChange={setSelectedUserID}
                     placeholder="指定用户"
                     filterOption={false}
                     onSearch={debounceFetcher}

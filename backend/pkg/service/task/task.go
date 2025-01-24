@@ -150,14 +150,13 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	return err
 }
 
-func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID uint, userRole int32, page *entity.Page) (*response.ListAppTasksResponse, error) {
+func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID *uint, page *entity.Page) (*response.ListAppTasksResponse, error) {
 	var (
 		modelPage *dbm.ModelPage[*dbm.AppRunTaskWithUser]
 		err       error
 	)
-	filter := &dbm.TaskFilter{}
-	if userRole != dbm.Administrator {
-		filter.UserID = &userID
+	filter := &dbm.TaskFilter{
+		UserID: userID,
 	}
 	modelPage, err = s.groupDAO.TaskDAO.ListByPage(ctx, filter, page.ToDBM())
 
