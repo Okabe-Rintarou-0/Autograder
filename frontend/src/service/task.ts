@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { AppInfo, SubmitAppResponse, ListAppTasksResponse } from '../model/app';
 import { GetProp, UploadProps } from 'antd';
+import useSWR from 'swr';
+import { fetcher } from './common';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
-const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 
 export async function submitApp(info: AppInfo) {
@@ -20,9 +21,8 @@ export async function submitApp(info: AppInfo) {
     return resp.data;
 }
 
-export async function listTasks(pageNo: number, pageSize: number) {
-    const resp = await axios.get<ListAppTasksResponse>(`/api/tasks?page_no=${pageNo}&page_size=${pageSize}`);
-    return resp.data;
+export function useTasks(pageNo: number, pageSize: number) {
+    return useSWR<ListAppTasksResponse>(`/api/tasks?page_no=${pageNo}&page_size=${pageSize}`, fetcher);
 }
 
 export async function readLog(uuid: string, logType: string) {

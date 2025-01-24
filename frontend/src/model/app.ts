@@ -19,6 +19,9 @@ export const AppRunTaskStatusFail = 4
 export interface AppRunTask {
     uuid: string;
     user_id: number;
+    username: string;
+    real_name: string;
+    email: string;
     status: number;
     created_at: string;
     pass: number;

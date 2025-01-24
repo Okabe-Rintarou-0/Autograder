@@ -37,6 +37,12 @@ export async function changePassword(newPassword: string) {
     return resp.data;
 }
 
-export function useUsers(keyword: string, pageNo: number, pageSize: number) {
-    return useSWR<ListUsersResponse>(`/api/users?keyword=${keyword}&page_no=${pageNo}&page_size=${pageSize}`, fetcher);
+export function useUsers(keyword: string, pageNo: number, pageSize: number, shouldFetch = true) {
+    const key = shouldFetch ? `/api/users?keyword=${keyword}&page_no=${pageNo}&page_size=${pageSize}` : null;
+    return useSWR<ListUsersResponse>(key, fetcher);
+}
+
+export async function listUsers(keyword: string, pageNo: number, pageSize: number) {
+    const resp = await axios.get<ListUsersResponse>(`/api/users?keyword=${keyword}&page_no=${pageNo}&page_size=${pageSize}`);
+    return resp.data;
 }

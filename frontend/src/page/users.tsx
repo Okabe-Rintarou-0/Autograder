@@ -1,14 +1,15 @@
 import useMessage from "antd/es/message/useMessage";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Administrator } from "../model/user";
 import { useUsers } from "../service/user";
 import RoleTag from "../components/role_tag";
 import { PrivateLayout } from "../components/layout";
 import { Button, Card, Input, Space, Table } from "antd";
 import { formatDate } from "../utils/time";
-import RegisterUserModal from "../components/register_user_modal";
+import RegisterUserForm from "../components/register_user_form";
 import ImportCanvasUsersForm from "../components/import_canvas_users_form";
 import { useModal } from "../lib/hooks";
+import { useMemoizedFn } from "ahooks";
 
 const columns = [{
     title: '创建时间',
@@ -43,28 +44,33 @@ export default function UsersPage() {
     const pageSize = 20;
     const [messageApi, contextHolder] = useMessage();
     const [pageNo, setPageNo] = useState<number>(1);
-    const [showRegisterModal, setShowRegisterModal] = useState<boolean>(false);
     const [keyword, setKeyword] = useState<string>("");
     const users = useUsers(keyword, pageNo, pageSize);
+
+    const { modal: RegisterUserModal,
+        open: openRegisterUserModal,
+        close: closeRegisterUserModal,
+    } = useModal(RegisterUserForm);
+
     const { modal: ImportCanvasUsersModal,
         open: openImportCanvasUsersModal,
         close: closeImportCanvasUsersModal,
     } = useModal(ImportCanvasUsersForm);
 
-    const onRegisterUser = () => {
-        setShowRegisterModal(false);
+    const onRegisterUser = useMemoizedFn(() => {
+        closeRegisterUserModal();
         users.mutate();
-    };
-
-    const onCancelRegisterUser = () => {
-        setShowRegisterModal(false);
-    };
+    });
 
     return (
         <PrivateLayout forRole={Administrator}>
             {contextHolder}
-            <RegisterUserModal open={showRegisterModal} onOk={onRegisterUser} onCancel={onCancelRegisterUser} />
+            <RegisterUserModal onOk={onRegisterUser}
+                destroyOnClose
+                title={"导入"} footer={null} width={800}
+                onCancel={closeRegisterUserModal} />
             <ImportCanvasUsersModal
+                destroyOnClose
                 title={"从 Canvas 导入用户"} footer={null} width={800}
                 onOk={closeImportCanvasUsersModal}
                 onCancel={closeImportCanvasUsersModal}
@@ -76,7 +82,7 @@ export default function UsersPage() {
                 extra={
                     <Space>
                         <Button type="primary" onClick={openImportCanvasUsersModal}>从 Canvas 导入</Button>
-                        <Button onClick={() => setShowRegisterModal(true)}>导入</Button>
+                        <Button onClick={openRegisterUserModal}>导入</Button>
                         <Button onClick={() => users.mutate()}>刷新</Button>
                     </Space>
                 }>

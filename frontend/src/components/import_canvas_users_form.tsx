@@ -8,7 +8,6 @@ import CourseSelect from "./course_select";
 import { useCourses } from "../service/canvas";
 import { useMemoizedFn } from "ahooks";
 import { ModalChildrenProps } from "../lib/hooks";
-import { useEffect } from "react";
 
 export default function ImportCanvasUsersForm(props: ModalChildrenProps<void>) {
     const [form] = Form.useForm<ImportCanvasUsersRequest>();
@@ -19,10 +18,6 @@ export default function ImportCanvasUsersForm(props: ModalChildrenProps<void>) {
         let resp = await submit<BaseResp>(importCanvasUsersURL, request);
         handleBaseResp(messageApi, resp, props.close);
     });
-    useEffect(() => {
-        console.log("props change", props);
-    }, [props])
-    console.log("called", props.isOpen);
 
     return <Form
         form={form}

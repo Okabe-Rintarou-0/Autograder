@@ -31,7 +31,7 @@ func Filter[T any](slice []T, filter func(v T) bool) []T {
 }
 
 func IntoMap[T any, K mapKey](slice []T, mapper func(v T) K) map[K]T {
-	var dst map[K]T
+	dst := map[K]T{}
 	for _, v := range slice {
 		dst[mapper(v)] = v
 	}
