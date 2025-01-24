@@ -1,6 +1,7 @@
 import { useMemoizedFn } from "ahooks";
 import { Button, Card, Form, Select, UploadFile } from "antd";
 import useMessage from "antd/es/message/useMessage";
+import { RcFile } from "antd/es/upload";
 import { PrivateLayout } from "../components/layout";
 import SelectSubmissionForm from "../components/select_submission_form";
 import { ZipUpload } from "../components/upload";
@@ -24,11 +25,7 @@ export default function SubmitPage() {
             uid: attachment.display_name,
             name: attachment.display_name,
             url: attachment.url,
-            originFileObj: {
-                lastModifiedDate: new Date(),
-                uid: attachment.display_name,
-                ...file
-            },
+            originFileObj: file as RcFile,
         }
         form.setFieldValue("file", [uploadFile]);
         closeSelectSubmissionModal();

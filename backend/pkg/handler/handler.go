@@ -54,7 +54,7 @@ func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
 	}
 
 	file := req.File
-	logrus.Infof("[validateParams] file: %+v", file)
+	logrus.Infof("[validateParams] file: %+v", file.Filename)
 	fileExt := filepath.Ext(file.Filename)
 	if fileExt != ".zip" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type, only zip files are allowed"})

@@ -55,7 +55,7 @@ export default function UsersPage() {
     const { modal: ImportCanvasUsersModal,
         open: openImportCanvasUsersModal,
         close: closeImportCanvasUsersModal,
-    } = useModal(ImportCanvasUsersForm);
+    } = useModal(ImportCanvasUsersForm, {});
 
     const onRegisterUser = useMemoizedFn(() => {
         closeRegisterUserModal();
