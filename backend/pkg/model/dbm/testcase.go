@@ -10,8 +10,9 @@ const (
 type Testcase struct {
 	gorm.Model
 
-	Name   string `gorm:"type:varchar(255);uniqueIndex"`
-	Status int32
+	Name    string `gorm:"type:varchar(255);uniqueIndex"`
+	Status  int32  `gorm:"default:1"`
+	Content string `gorm:"type:text"`
 }
 
 type TestcaseFilter struct {

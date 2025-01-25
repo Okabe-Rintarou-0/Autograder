@@ -11,6 +11,7 @@ import (
 	"autograder/pkg/utils"
 	"context"
 	"github.com/sirupsen/logrus"
+	"os"
 )
 
 type ServiceImpl struct {
@@ -33,7 +34,7 @@ func (s *ServiceImpl) BatchUpdateTestcases(ctx context.Context, request *request
 	if err != nil {
 		return nil, err
 	}
-	
+
 	r.BaseResp = response.NewSucceedBaseResp(messages.ModifySucceed)
 	return r, nil
 }
@@ -75,9 +76,11 @@ func (s *ServiceImpl) Sync(ctx context.Context) error {
 	}
 
 	saveModels := utils.Map(testcaseFiles, func(v string) *dbm.Testcase {
+		bytes, _ := os.ReadFile(v)
 		return &dbm.Testcase{
-			Name:   v,
-			Status: dbm.Active,
+			Name:    v,
+			Status:  dbm.Active,
+			Content: string(bytes),
 		}
 	})
 	err = s.groupDAO.TestcaseDAO.SaveIfNotExist(ctx, saveModels...)

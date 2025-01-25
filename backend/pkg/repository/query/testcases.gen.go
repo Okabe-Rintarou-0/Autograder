@@ -33,6 +33,7 @@ func newTestcase(db *gorm.DB, opts ...gen.DOOption) testcase {
 	_testcase.DeletedAt = field.NewField(tableName, "deleted_at")
 	_testcase.Name = field.NewString(tableName, "name")
 	_testcase.Status = field.NewInt32(tableName, "status")
+	_testcase.Content = field.NewString(tableName, "content")
 
 	_testcase.fillFieldMap()
 
@@ -49,6 +50,7 @@ type testcase struct {
 	DeletedAt field.Field
 	Name      field.String
 	Status    field.Int32
+	Content   field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -71,6 +73,7 @@ func (t *testcase) updateTableName(table string) *testcase {
 	t.DeletedAt = field.NewField(table, "deleted_at")
 	t.Name = field.NewString(table, "name")
 	t.Status = field.NewInt32(table, "status")
+	t.Content = field.NewString(table, "content")
 
 	t.fillFieldMap()
 
@@ -95,13 +98,14 @@ func (t *testcase) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *testcase) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 6)
+	t.fieldMap = make(map[string]field.Expr, 7)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["created_at"] = t.CreatedAt
 	t.fieldMap["updated_at"] = t.UpdatedAt
 	t.fieldMap["deleted_at"] = t.DeletedAt
 	t.fieldMap["name"] = t.Name
 	t.fieldMap["status"] = t.Status
+	t.fieldMap["content"] = t.Content
 }
 
 func (t testcase) clone(db *gorm.DB) testcase {

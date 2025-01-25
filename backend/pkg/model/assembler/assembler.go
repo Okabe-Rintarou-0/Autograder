@@ -45,15 +45,17 @@ func ConvertUserDbmToEntity(m *dbm.User) *entity.User {
 
 func ConvertTestcaseDbmToResponse(m *dbm.Testcase) *response.Testcase {
 	return &response.Testcase{
-		ID:     m.ID,
-		Name:   m.Name,
-		Status: m.Status,
+		ID:      m.ID,
+		Name:    m.Name,
+		Status:  m.Status,
+		Content: m.Content,
 	}
 }
 
 func ConvertTestcaseRequestToDBM(m *request.Testcase) *dbm.Testcase {
 	return &dbm.Testcase{
-		Name:   m.Name,
-		Status: m.Status,
+		Name:    m.Name,
+		Status:  m.Status,
+		Content: m.Content,
 	}
 }
