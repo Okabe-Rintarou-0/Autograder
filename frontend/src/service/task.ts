@@ -26,7 +26,6 @@ export function useTasks(pageNo: number, pageSize: number, userID?: number) {
     if (userID) {
         url += `&user_id=${userID}`;
     }
-    console.log(url);
     return useSWR<ListAppTasksResponse>(url, fetcher);
 }
 

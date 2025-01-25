@@ -89,7 +89,7 @@ export default function SubmitPage() {
                         label="上传项目压缩包（zip）"
                         rules={[{ required: true }]}
                     >
-                        <ZipUpload />
+                        <ZipUpload maxCount={1} />
                     </Form.Item>
 
                     <Form.Item>

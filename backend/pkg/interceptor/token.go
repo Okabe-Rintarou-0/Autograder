@@ -1,9 +1,10 @@
 package interceptor
 
 import (
-	"autograder/pkg/dao"
 	"net/http"
 	"time"
+
+	"autograder/pkg/dao"
 
 	"autograder/pkg/config"
 	"autograder/pkg/messages"

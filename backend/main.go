@@ -9,6 +9,7 @@ import (
 	"autograder/pkg/interceptor"
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/service"
+	"context"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -33,6 +34,11 @@ func main() {
 	}
 	groupDAO := dao.NewGroupDAO(systemDB, eBookStoreDB)
 	groupSvc := service.NewGroupService(groupDAO)
+
+	if err = groupSvc.TestcaseSvc.Sync(context.Background()); err != nil {
+		panic(err)
+	}
+
 	h := handler.NewHandler(groupSvc)
 	r.Group("/api", interceptor.NewTokenInterceptor(cfg.Token)).
 		GET("/me", h.HandleGetMe).
@@ -49,7 +55,9 @@ func main() {
 		GET("/submissions", h.HandleGetAssignmentSubmissions).
 		POST("/register", h.HandleRegister).
 		POST("/register/canvas", h.HandleImportCanvasUsers).
-		GET("/canvas/users", h.HandleGetCourseUsers)
+		GET("/canvas/users", h.HandleGetCourseUsers).
+		POST("/testcases", h.HandleBatchUpdateTestcases).
+		GET("/testcases", h.HandleListTestcases)
 
 	r.POST("/api/login", h.HandleLogin).
 		GET("/api/logs", h.HandleGetLog)

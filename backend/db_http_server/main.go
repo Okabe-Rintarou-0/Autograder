@@ -1,9 +1,10 @@
 package db_http_server
 
 import (
-	"autograder/pkg/utils"
 	"fmt"
 	"net/http"
+
+	"autograder/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

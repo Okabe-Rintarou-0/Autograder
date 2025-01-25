@@ -39,7 +39,7 @@ func main() {
 	g.UseDB(db)
 
 	// Generate default DAO interface for those specified structs
-	g.ApplyBasic(dbm.User{}, dbm.AppRunTask{})
+	g.ApplyBasic(dbm.User{}, dbm.AppRunTask{}, dbm.Testcase{})
 
 	// Execute the generator
 	g.Execute()

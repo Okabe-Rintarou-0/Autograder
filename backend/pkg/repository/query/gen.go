@@ -18,12 +18,14 @@ import (
 var (
 	Q          = new(Query)
 	AppRunTask *appRunTask
+	Testcase   *testcase
 	User       *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	AppRunTask = &Q.AppRunTask
+	Testcase = &Q.Testcase
 	User = &Q.User
 }
 
@@ -31,6 +33,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:         db,
 		AppRunTask: newAppRunTask(db, opts...),
+		Testcase:   newTestcase(db, opts...),
 		User:       newUser(db, opts...),
 	}
 }
@@ -39,6 +42,7 @@ type Query struct {
 	db *gorm.DB
 
 	AppRunTask appRunTask
+	Testcase   testcase
 	User       user
 }
 
@@ -48,6 +52,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:         db,
 		AppRunTask: q.AppRunTask.clone(db),
+		Testcase:   q.Testcase.clone(db),
 		User:       q.User.clone(db),
 	}
 }
@@ -64,18 +69,21 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:         db,
 		AppRunTask: q.AppRunTask.replaceDB(db),
+		Testcase:   q.Testcase.replaceDB(db),
 		User:       q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
 	AppRunTask IAppRunTaskDo
+	Testcase   ITestcaseDo
 	User       IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		AppRunTask: q.AppRunTask.WithContext(ctx),
+		Testcase:   q.Testcase.WithContext(ctx),
 		User:       q.User.WithContext(ctx),
 	}
 }

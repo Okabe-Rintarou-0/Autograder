@@ -3,6 +3,7 @@ package assembler
 import (
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/model/entity"
+	"autograder/pkg/model/request"
 	"autograder/pkg/model/response"
 )
 
@@ -39,5 +40,20 @@ func ConvertUserDbmToEntity(m *dbm.User) *entity.User {
 		Email:    m.Email,
 		Role:     m.Role,
 		RealName: m.RealName,
+	}
+}
+
+func ConvertTestcaseDbmToResponse(m *dbm.Testcase) *response.Testcase {
+	return &response.Testcase{
+		ID:     m.ID,
+		Name:   m.Name,
+		Status: m.Status,
+	}
+}
+
+func ConvertTestcaseRequestToDBM(m *request.Testcase) *dbm.Testcase {
+	return &dbm.Testcase{
+		Name:   m.Name,
+		Status: m.Status,
 	}
 }

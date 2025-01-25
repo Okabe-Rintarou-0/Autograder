@@ -1,9 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import SubmitPage from "../page/submit";
-import LoginPage from "../page/login";
-import TaskPage from "../page/tasks";
 import UnauthorizedPage from "../page/403";
 import NotfoundPage from "../page/404";
+import LoginPage from "../page/login";
+import SubmitPage from "../page/submit";
+import TaskPage from "../page/tasks";
+import TestcasesPage from "../page/testcases";
 import UsersPage from "../page/users";
 
 export default function AppRouter() {
@@ -12,6 +13,7 @@ export default function AppRouter() {
             <Route index element={<Navigate to={"/submit"} />} />
             <Route path="/submit" element={<SubmitPage />} />
             <Route path="/tasks" element={<TaskPage />} />
+            <Route path="/testcases" element={<TestcasesPage />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/403" element={<UnauthorizedPage />} />

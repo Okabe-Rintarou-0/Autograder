@@ -1,9 +1,11 @@
 package task
 
 import (
-	"autograder/pkg/utils"
 	"context"
+
 	"gorm.io/gen"
+
+	"autograder/pkg/utils"
 
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/repository/query"
@@ -50,7 +52,7 @@ func (d *DaoImpl) ListByPage(ctx context.Context, filter *dbm.TaskFilter, page *
 		Where(d.getConditions(filter)...).
 		Order(t.ID.Desc()).
 		FindByPage(offset, page.PageSize)
-	
+
 	if err != nil {
 		return nil, err
 	}

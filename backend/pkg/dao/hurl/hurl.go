@@ -1,6 +1,8 @@
 package hurl
 
 import (
+	"autograder/pkg/model/dbm"
+	"autograder/pkg/utils"
 	"context"
 	"encoding/json"
 	"io"
@@ -10,7 +12,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"autograder/pkg/config"
 	"autograder/pkg/model/constants"
 	"autograder/pkg/model/entity"
 )
@@ -21,7 +22,7 @@ func NewDAO() *DaoImpl {
 	return &DaoImpl{}
 }
 
-func (d *DaoImpl) RunAllTests(ctx context.Context, info *entity.AppInfo) (string, []*entity.HurlTestResult, error) {
+func (d *DaoImpl) RunAllTests(ctx context.Context, info *entity.AppInfo, testcases []*dbm.Testcase) (string, []*entity.HurlTestResult, error) {
 	logDir := info.GetLogDir()
 	reportDir := logDir.DirPath
 	reportJsonPath := filepath.Join(reportDir, "report.json")
@@ -31,7 +32,12 @@ func (d *DaoImpl) RunAllTests(ctx context.Context, info *entity.AppInfo) (string
 		logrus.Warnf("[Hurl DAO][RunAllTests] call os.ReadFile error %+v", err)
 	}
 
-	cmd := exec.Command("hurl", "--test", config.Instance.TestcasesDir, "--report-json", reportDir)
+	testcaseFiles := utils.Map(testcases, func(v *dbm.Testcase) string {
+		return v.Name
+	})
+	args := []string{"--report-json", reportDir, "--test"}
+	args = append(args, testcaseFiles...)
+	cmd := exec.Command("hurl", args...)
 
 	writer, err := logDir.GetWriter(constants.LogTypeHurlTest)
 	if err != nil {

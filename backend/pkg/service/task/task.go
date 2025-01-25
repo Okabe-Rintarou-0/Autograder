@@ -130,7 +130,22 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 
 	defer s.cleanup(ctx, info, removeFn)
 
-	rawResults, testResults, err := s.groupDAO.HurlDAO.RunAllTests(ctx, info)
+	testcaseFiles, err := utils.GetAllFileNames(config.Instance.TestcasesDir, ".hurl")
+	if err != nil {
+		logrus.Errorf("[TaskService][RunApp] call GetAllFileNames error %+v", err)
+		return err
+	}
+
+	testcases, err := s.groupDAO.TestcaseDAO.FindAll(ctx, &dbm.TestcaseFilter{
+		Names:  testcaseFiles,
+		Status: utils.Pointer(dbm.Active),
+	})
+	if err != nil {
+		logrus.Errorf("[TaskService][RunApp] call TestcaseDAO.FindAll error %+v", err)
+		return err
+	}
+
+	rawResults, testResults, err := s.groupDAO.HurlDAO.RunAllTests(ctx, info, testcases)
 	if err != nil {
 		logrus.Errorf("[TaskService][RunApp] call HurlDAO.RunAllTests error %+v", err)
 		return err

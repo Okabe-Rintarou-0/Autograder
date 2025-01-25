@@ -37,3 +37,11 @@ func IntoMap[T any, K mapKey](slice []T, mapper func(v T) K) map[K]T {
 	}
 	return dst
 }
+
+func IntoSet[T any, K mapKey](slice []T, mapper func(v T) K) map[K]struct{} {
+	dst := map[K]struct{}{}
+	for _, v := range slice {
+		dst[mapper(v)] = struct{}{}
+	}
+	return dst
+}

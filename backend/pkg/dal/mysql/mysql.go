@@ -30,7 +30,7 @@ func NewDB(cfg *config.MysqlConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&dbm.User{}, &dbm.AppRunTask{})
+	err = db.AutoMigrate(&dbm.User{}, &dbm.AppRunTask{}, &dbm.Testcase{})
 	if err != nil {
 		logrus.Errorf("[Mysql][NewDB] db.AutoMigrate failed, error %+v", err)
 		return nil, err

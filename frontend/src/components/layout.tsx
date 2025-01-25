@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { CloudUploadOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, CodeOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Space, theme } from 'antd';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from 'antd/lib/layout/layout';
-import NavBar from './navbar';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { UserContext } from '../lib/context';
 import { Administrator, User } from '../model/user';
 import { getMe } from '../service/user';
-import { UserContext } from '../lib/context';
+import NavBar from './navbar';
 const { Content, Footer, Sider } = Layout;
 
 export interface BasicLayoutProps {
@@ -31,11 +31,16 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
         }];
 
         if (me?.role === Administrator) {
-            items.push({
+            const adminItems = [{
                 key: 'users',
                 icon: <UserOutlined />,
                 label: <Link to={'/users'}> 查看用户 </Link>,
-            });
+            }, {
+                key: 'testcases',
+                icon: <CodeOutlined />,
+                label: <Link to={'/testcases'}> 测试用例 </Link>,
+            }];
+            items.push(...adminItems);
         }
         return items;
     }

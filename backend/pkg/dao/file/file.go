@@ -20,12 +20,13 @@ type DaoImpl struct {
 	imageReady bool
 }
 
-func NewDao() *DaoImpl {
+func NewDAO() *DaoImpl {
 	return &DaoImpl{}
 }
 
 func (d *DaoImpl) Cleanup(ctx context.Context, info *entity.AppInfo) error {
 	appDir := info.AppPath()
+	_ = os.Remove(info.ZipFilePath())
 	return os.RemoveAll(appDir)
 }
 

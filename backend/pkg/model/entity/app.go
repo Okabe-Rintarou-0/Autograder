@@ -60,10 +60,6 @@ func (a *AppInfo) GetFileName() string {
 }
 
 func (a *AppInfo) Validate() bool {
-	parts := strings.Split(a.GetFileName(), "_")
-	if len(parts) != 2 {
-		return false
-	}
 	if a.AuthenticationType != ByCookies && a.AuthenticationType != ByToken {
 		return false
 	}

@@ -1,14 +1,15 @@
 package handler
 
 import (
-	"autograder/pkg/model/dbm"
-	"autograder/pkg/model/request/canvas"
 	"fmt"
 	"io"
 	"net/http"
 	"path"
 	"path/filepath"
 	"time"
+
+	"autograder/pkg/model/dbm"
+	"autograder/pkg/model/request/canvas"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -227,6 +228,33 @@ func (h *Handler) HandleListUsers(c *gin.Context) {
 	resp, err := h.groupSvc.UserSvc.ListUsers(c.Request.Context(), keyword, page)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleListUsers] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) HandleListTestcases(c *gin.Context) {
+	resp, err := h.groupSvc.TestcaseSvc.ListTestcases(c.Request.Context())
+	if err != nil {
+		logrus.Errorf("[Handler][HandleListTestcases] internal error %+v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) HandleBatchUpdateTestcases(c *gin.Context) {
+	req := request.BatchUpdateTestcaseRequest{}
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid param"})
+		return
+	}
+	resp, err := h.groupSvc.TestcaseSvc.BatchUpdateTestcases(c.Request.Context(), &req)
+	if err != nil {
+		logrus.Errorf("[Handler][HandleBatchUpdateTestcases] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
