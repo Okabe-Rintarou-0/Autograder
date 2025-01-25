@@ -47,6 +47,7 @@ export default function CourseSelect({ courses, disabled, onChange, value }: Cou
         style={{ width: 350 }}
         disabled={disabled}
         onChange={onChange}
+        placeholder={"请选择课程"}
         options={formattedCourses.map(course => ({
             label: courseLabel(course),
             value: course.id

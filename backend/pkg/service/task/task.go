@@ -10,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/emirpasic/gods/sets/hashset"
@@ -121,27 +122,26 @@ func (s *ServiceImpl) runAllTests(ctx context.Context, info *entity.AppInfo, tes
 
 	err := os.Remove(reportJsonPath)
 	if err != nil {
-		logrus.Warnf("[Hurl DAO][RunAllTests] call os.ReadFile error %+v", err)
+		logrus.Warnf("[Hurl DAO][RunAllTests] call os.Remove error %+v", err)
 	}
-
-	testcaseFiles := utils.Map(testcases, func(v *dbm.Testcase) string {
-		return v.Name
-	})
-	args := []string{"--report-json", reportDir, "--test"}
-	args = append(args, testcaseFiles...)
-	cmd := exec.Command("hurl", args...)
 
 	writer, err := logDir.GetWriter(constants.LogTypeHurlTest)
 	if err != nil {
 		logrus.Errorf("[Hurl DAO][RunAllTests] call logDir.GetWriter error %+v", err)
 		return "", nil, err
 	}
-	cmd.Stdout = writer
-	cmd.Stderr = writer
 
-	if err = cmd.Run(); err != nil {
-		logrus.Errorf("[Hurl DAO][RunAllTests] run command error %+v", err)
-		return "", nil, err
+	for _, testcase := range testcases {
+		args := []string{"--report-json", reportDir, "--test"}
+		command := exec.Command("hurl", args...)
+		command.Stdin = strings.NewReader(testcase.Content)
+		command.Stdout = writer
+		command.Stderr = writer
+		if err = command.Run(); err != nil {
+			logrus.Errorf("[TaskService][RunAllTests] call hurl.Run err: %+v", err)
+			continue
+		}
+		logrus.Infof("[TaskService][RunAllTests] call hurl.Run success %s", utils.FormatJsonString(testcase))
 	}
 
 	file, err := os.Open(reportJsonPath)

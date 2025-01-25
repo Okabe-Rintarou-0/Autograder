@@ -92,7 +92,7 @@ export default function SubmissionTable(props: SubmissionTableProps) {
         }
     });
 
-    return <>
+    return <Space style={{ width: "100%" }} direction="vertical">
         <Table style={{ width: "100%" }}
             columns={columns}
             loading={isLoading}
@@ -112,5 +112,5 @@ export default function SubmissionTable(props: SubmissionTableProps) {
             }}
         />
         <Button type="primary" disabled={!selectedAttachment} onClick={handleSubmit}>选择</Button>
-    </>
+    </Space>
 }

@@ -26,7 +26,15 @@ func (d *LogDir) getFileName(logType string) string {
 }
 
 func (d *LogDir) GetWriter(logType string) (io.WriteCloser, error) {
-	return d.prepare(d.getFileName(logType))
+	filePath := d.getFileName(logType)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+	if os.IsNotExist(err) {
+		return d.prepare(filePath)
+	}
+	return file, nil
 }
 
 func (d *LogDir) GetReader(logType string) (io.ReadCloser, error) {

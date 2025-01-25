@@ -21,9 +21,7 @@ export default function TestcasesPage() {
     const handleEditTestcase = useMemoizedFn((testcase: Testcase) => {
         const targetID = testcase.id;
         setEditingTestcaseIDs(ids => {
-            if (ids.has(targetID)) {
-                ids.delete(targetID);
-            } else {
+            if (!ids.has(targetID)) {
                 ids.add(targetID);
             }
         });
@@ -58,7 +56,7 @@ export default function TestcasesPage() {
         title: "操作",
         key: 'action',
         render: (_: any, testcase: Testcase) => <Button onClick={() => handleEditTestcase(testcase)}>
-            编辑/取消
+            编辑
         </Button>
     }], []);
 
@@ -88,10 +86,19 @@ export default function TestcasesPage() {
                         },
                         expandedRowRender: (testcase: Testcase) => {
                             const editing = editingTestcaseIDs.has(testcase.id);
-                            return <>
-                                {editing && <TextArea defaultValue={testcase.content} style={{ minHeight: "500px" }} />}
+                            return <Space direction="vertical" style={{ width: "100%" }}>
+                                {editing && <>
+                                    <TextArea onChange={(e) => testcase.content = e.target.value} defaultValue={testcase.content} style={{ minHeight: "300px" }} />
+                                    <Space>
+                                        <Button type="primary" onClick={() => {
+                                            handleUpdateStatus(testcase);
+                                            setEditingTestcaseIDs(ids => { ids.delete(testcase.id) });
+                                        }}>保存</Button>
+                                        <Button onClick={() => setEditingTestcaseIDs(ids => { ids.delete(testcase.id) })}>取消</Button>
+                                    </Space>
+                                </>}
                                 {!editing && <SyntaxHighlighter language="toml">{testcase.content}</SyntaxHighlighter>}
-                            </>;
+                            </Space>;
                         }
                     }}
                 >

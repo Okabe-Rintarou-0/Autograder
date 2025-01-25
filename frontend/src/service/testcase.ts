@@ -11,6 +11,10 @@ export async function batchUpdateTestcases(data: Testcase[]) {
     const request = {
         data
     } as BatchUpdateTestcaseRequest;
-    const resp = await axios.post<BatchUpdateTestcaseResponse>('/api/testcases', request);
+    const resp = await axios.post<BatchUpdateTestcaseResponse>('/api/testcases', JSON.stringify(request), {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
     return resp.data;
 }

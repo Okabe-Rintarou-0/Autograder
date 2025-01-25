@@ -248,7 +248,8 @@ func (h *Handler) HandleListTestcases(c *gin.Context) {
 
 func (h *Handler) HandleBatchUpdateTestcases(c *gin.Context) {
 	req := request.BatchUpdateTestcaseRequest{}
-	if err := c.Bind(&req); err != nil {
+	if err := c.BindJSON(&req); err != nil {
+		logrus.Errorf("[Handler][HandleBatchUpdateTestcases] failed to bind request: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid param"})
 		return
 	}

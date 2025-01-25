@@ -25,6 +25,7 @@ export default function AssignmentSelect({ assignments, disabled, onChange, valu
         style={{ width: 350 }}
         disabled={disabled}
         onChange={onChange}
+        placeholder={"请选择作业"}
         options={assignments.map(assignment => ({
             label: assignment.name,
             value: assignment.id
