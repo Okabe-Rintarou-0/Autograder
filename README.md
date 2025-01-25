@@ -1,2 +1,6 @@
-# Autograder
-Autograder for EbookStore
+# 电子书城后端自动评分系统
+
+![](./image/logo.png)
+
+该 repo 为上海交通大学课程“互联网应用开发技术(SE2321)” 的后端自动评分系统，旨在更好地提升课程体验。
+
