@@ -9,6 +9,7 @@ const (
 	AppRunTaskStatusRunning int32 = 2
 	AppRunTaskStatusSucceed int32 = 3
 	AppRunTaskStatusFail    int32 = 4
+	AppRunTaskStatusError   int32 = 5
 )
 
 type AppRunTask struct {
@@ -18,10 +19,11 @@ type AppRunTask struct {
 	// Actual bound user
 	UserID uint `gorm:"not null"`
 	// Operator
-	OperatorID uint  `gorm:"not null"`
-	Status     int32 `gorm:"not null"`
-	Pass       int32 `gorm:"not null"`
-	Total      int32 `gorm:"not null"`
+	OperatorID uint   `gorm:"not null"`
+	Status     int32  `gorm:"not null"`
+	Error      string `gorm:"type:text"`
+	Pass       int32  `gorm:"not null"`
+	Total      int32  `gorm:"not null"`
 
 	TestResults *string `gorm:"type:json"`
 }
@@ -38,6 +40,7 @@ type AppRunTaskWithUser struct {
 	gorm.Model
 
 	UUID        string
+	Error       string
 	User        *UserProfile
 	Operator    *UserProfile
 	Status      int32

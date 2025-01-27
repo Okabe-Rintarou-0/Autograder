@@ -30,6 +30,7 @@ func ConvertUserProfileDbmToResponse(m *dbm.UserProfile) *response.UserProfile {
 func ConvertAppRunTaskDbmToResponse(m *dbm.AppRunTaskWithUser) *response.AppRunTask {
 	return &response.AppRunTask{
 		UUID:        m.UUID,
+		Error:       m.Error,
 		User:        ConvertUserProfileDbmToResponse(m.User),
 		Operator:    ConvertUserProfileDbmToResponse(m.Operator),
 		Status:      m.Status,

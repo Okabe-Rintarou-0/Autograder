@@ -15,6 +15,7 @@ export const AppRunTaskStatusWaiting = 1
 export const AppRunTaskStatusRunning = 2
 export const AppRunTaskStatusSucceed = 3
 export const AppRunTaskStatusFail = 4
+export const AppRunTaskStatusError = 5
 
 export interface UserProfile {
     id: number;
@@ -26,6 +27,7 @@ export interface UserProfile {
 
 export interface AppRunTask {
     uuid: string;
+    error: string;
     user: UserProfile;
     operator: UserProfile;
     status: number;

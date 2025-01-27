@@ -16,6 +16,7 @@ type UserProfile struct {
 
 type AppRunTask struct {
 	UUID        string       `json:"uuid"`
+	Error       string       `json:"error"`
 	User        *UserProfile `json:"user"`
 	Operator    *UserProfile `json:"operator"`
 	Status      int32        `json:"status"`

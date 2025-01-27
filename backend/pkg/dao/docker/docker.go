@@ -53,7 +53,7 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 		d.imageReady = true
 	}
 
-	appPath := info.AppPath()
+	appPath := info.ProjectDirPath
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err

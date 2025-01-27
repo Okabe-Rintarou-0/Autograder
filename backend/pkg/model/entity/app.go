@@ -30,6 +30,7 @@ type AppInfo struct {
 	Operator           *User
 	UUID               string
 	ZipFileName        string
+	ProjectDirPath     string
 	AuthenticationType AuthenticationType
 	JDKVersion         int32
 }
@@ -71,7 +72,7 @@ func (a *AppInfo) Validate() bool {
 }
 
 func (a *AppInfo) AppPath() string {
-	path := filepath.Join(config.Instance.WorkDir, a.GetFileName())
+	path := filepath.Join(config.Instance.WorkDir, "app", a.GetFileName()+"_"+a.UUID)
 	return path
 }
 

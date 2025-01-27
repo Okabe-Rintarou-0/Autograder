@@ -30,7 +30,7 @@ export default function SubmitAppForm() {
     const onSubmit = useMemoizedFn(async (attachment: Attachment) => {
         const canvasUser = attachment.user!;
         const username = canvasUser.login_id;
-        console.log(username);
+        messageApi.open({ type: 'info', content: '正在导入...', key: 'submitting' });
         form.setFieldValue("username", username);
         const file = await urlToFile(attachment.url, attachment.display_name);
         const uploadFile: UploadFile = {
@@ -40,6 +40,7 @@ export default function SubmitAppForm() {
             originFileObj: file as RcFile,
         }
         form.setFieldValue("file", [uploadFile]);
+        messageApi.destroy('submitting');
         closeSelectSubmissionModal();
     });
 

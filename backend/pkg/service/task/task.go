@@ -3,6 +3,7 @@ package task
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -44,29 +45,35 @@ func NewService(groupDAO *dao.GroupDAO) *ServiceImpl {
 	return svc
 }
 
-func (s *ServiceImpl) putUserTask(userID uint) {
+func (s *ServiceImpl) userSetKey(userID, operatorID uint) string {
+	return fmt.Sprintf("%d_%d", userID, operatorID)
+}
+
+func (s *ServiceImpl) putUserTask(userID, operatorID uint) {
 	s.rwLock.Lock()
 	defer s.rwLock.Unlock()
 
-	s.userTaskSet.Add(userID)
+	s.userTaskSet.Add(s.userSetKey(userID, operatorID))
 }
 
-func (s *ServiceImpl) removeUserTask(userID uint) {
+func (s *ServiceImpl) removeUserTask(userID, operatorID uint) {
 	s.rwLock.Lock()
 	defer s.rwLock.Unlock()
 
-	s.userTaskSet.Remove(userID)
+	s.userTaskSet.Remove(s.userSetKey(userID, operatorID))
 }
 
-func (s *ServiceImpl) existsUserTask(userID uint) bool {
+func (s *ServiceImpl) existsUserTask(userID, operatorID uint) bool {
 	s.rwLock.RLock()
 	defer s.rwLock.RUnlock()
 
-	return s.userTaskSet.Contains(userID)
+	return s.userTaskSet.Contains(s.userSetKey(userID, operatorID))
 }
 
 func (s *ServiceImpl) SubmitApp(ctx context.Context, info *entity.AppInfo) (entity.SubmitAppResult, error) {
-	if s.existsUserTask(info.User.UserID) {
+	userID := info.User.UserID
+	operatorID := info.Operator.UserID
+	if s.existsUserTask(userID, operatorID) {
 		return entity.SubmitAppResultSystemTaskExists, nil
 	}
 
@@ -75,7 +82,7 @@ func (s *ServiceImpl) SubmitApp(ctx context.Context, info *entity.AppInfo) (enti
 		return entity.SubmitAppResultSystemBusy, nil
 	}
 
-	s.putUserTask(info.User.UserID)
+	s.putUserTask(userID, operatorID)
 
 	model := info.ToDBM(dbm.AppRunTaskStatusWaiting)
 	err := s.groupDAO.TaskDAO.SaveIfNotExist(ctx, model)
@@ -162,7 +169,12 @@ func (s *ServiceImpl) runAllTests(ctx context.Context, info *entity.AppInfo, tes
 }
 
 func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
-	err := s.groupDAO.FileDAO.Unzip(ctx, info)
+	var (
+		removeFn docker.ContainerRemoveFn
+		err      error
+	)
+	defer s.cleanup(ctx, info, removeFn)
+	err = s.groupDAO.FileDAO.Unzip(ctx, info)
 	if err != nil {
 		logrus.Errorf("[TaskService][RunApp] call FileDAO.Unzip error %+v", err)
 		return err
@@ -174,13 +186,11 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 		return err
 	}
 
-	removeFn, err := s.groupDAO.DockerDAO.CompileAndRun(ctx, info, stdout, stderr)
+	removeFn, err = s.groupDAO.DockerDAO.CompileAndRun(ctx, info, stdout, stderr)
 	if err != nil {
 		logrus.Errorf("[TaskService][RunApp] call DockerDAO.CompileAndRun error %+v", err)
 		return err
 	}
-
-	defer s.cleanup(ctx, info, removeFn)
 
 	testcaseFiles, err := utils.GetAllFileNames(config.Instance.TestcasesDir, ".hurl")
 	if err != nil {

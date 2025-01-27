@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import ReactJson from "react-json-view-ts";
 import { PAGE_SIZE } from "../lib/config";
 import { UserContext } from "../lib/context";
-import { AppRunTask, AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting, UserProfile } from "../model/app";
+import { AppRunTask, AppRunTaskStatusError, AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting, UserProfile } from "../model/app";
 import { Administrator } from "../model/user";
 import { useTasks } from "../service/task";
 import { formatDate } from "../utils/time";
@@ -59,11 +59,17 @@ const columns = [{
             case AppRunTaskStatusWaiting:
                 return <Tag color="yellow">等待运行</Tag>;
             case AppRunTaskStatusSucceed:
-                return <Tag color="green">执行成功</Tag>;
+                return <Tag color="green">运行成功</Tag>;
+            case AppRunTaskStatusError:
+                return <Tag color="red">运行出错</Tag>;
             default:
                 return null;
         }
     }
+}, {
+    title: '错误信息',
+    dataIndex: 'error',
+    key: 'error',
 }];
 
 export default function TaskTable() {

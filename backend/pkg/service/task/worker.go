@@ -23,11 +23,16 @@ func (s *ServiceImpl) dealWithApp(ctx context.Context, info *entity.AppInfo) {
 		if dbErr != nil || task == nil {
 			return
 		}
+		logrus.Infof("dealWithApp task uuid: %s, error: %+v", task.UUID, err)
 		if err != nil {
-			task.Status = dbm.AppRunTaskStatusFail
-			_ = s.groupDAO.TaskDAO.Save(ctx, task)
+			task.Status = dbm.AppRunTaskStatusError
+			task.Error = err.Error()
+			err = s.groupDAO.TaskDAO.Save(ctx, task)
+			if err != nil {
+				logrus.Errorf("dealWithApp task uuid: %s, save model error: %+v", task.UUID, err)
+			}
 		}
-		s.removeUserTask(task.UserID)
+		s.removeUserTask(task.UserID, task.OperatorID)
 	}()
 
 	err = s.groupDAO.TaskDAO.Save(ctx, model)

@@ -87,6 +87,7 @@ func (d *DaoImpl) ListByPage(ctx context.Context, filter *dbm.TaskFilter, page *
 		models = append(models, &dbm.AppRunTaskWithUser{
 			Model:       task.Model,
 			UUID:        task.UUID,
+			Error:       task.Error,
 			User:        assembler.ConvertUserDbmToProfile(user),
 			Operator:    assembler.ConvertUserDbmToProfile(operator),
 			Status:      task.Status,
