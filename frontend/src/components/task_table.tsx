@@ -43,7 +43,7 @@ const columns = [{
     key: 'pass',
     render: (pass: number, task: AppRunTask) => {
         let status: BadgeProps["status"] = "success";
-        if (pass != task.total) {
+        if (pass != task.total || task.error) {
             status = "error"
         }
         return <Badge status={status} text={`${pass}/${task.total}`} />

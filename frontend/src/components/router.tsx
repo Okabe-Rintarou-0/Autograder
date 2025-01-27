@@ -4,7 +4,7 @@ import NotfoundPage from "../page/404";
 import LoginPage from "../page/login";
 import SubmitPage from "../page/submit";
 import TaskPage from "../page/tasks";
-import TestcasesPage from "../page/testcases";
+import TestcasesPage from "../page/testcase";
 import UsersPage from "../page/users";
 
 export default function AppRouter() {
