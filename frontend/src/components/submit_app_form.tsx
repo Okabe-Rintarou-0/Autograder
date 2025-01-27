@@ -8,6 +8,7 @@ import { UserContext } from "../lib/context";
 import { useModal } from "../lib/hooks";
 import { AppInfo } from "../model/app";
 import { Attachment } from "../model/canvas/course";
+import { Administrator } from "../model/user";
 import { submitApp } from "../service/task";
 import { urlToFile } from "../utils/file";
 import { handleBaseResp } from "../utils/handle_resp";
@@ -61,8 +62,9 @@ export default function SubmitAppForm() {
             messageApi.error(`上传失败：${e}`);
         }
     }
+
     return <Card className="card-container"
-        title={<Button type="primary" onClick={openSelectSubmissionModal}>从 Canvas 中导入</Button>}
+        title={me?.role === Administrator && <Button type="primary" onClick={openSelectSubmissionModal}>从 Canvas 中导入</Button>}
     >
         {contextHolder}
         <SelectSubmissionModal destroyOnClose title="从 Canvas 中导入"

@@ -1,11 +1,11 @@
 import { PrivateLayout } from "../components/layout";
-import { UserTable } from "../components/user_table";
+import { TestcaseTable } from "../components/testcase_table";
 import { Administrator } from "../model/user";
 
-export default function UsersPage() {
+export default function TestcasesPage() {
     return (
         <PrivateLayout forRole={Administrator}>
-            <UserTable />
+            <TestcaseTable />
         </PrivateLayout >
     )
 }

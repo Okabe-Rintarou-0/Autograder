@@ -1,8 +1,9 @@
 import { LazyLog } from "@melloware/react-logviewer";
-import { Badge, Button, Card, Space, Table, Tabs, Tag } from "antd";
+import { Badge, Button, Card, Empty, Space, Table, Tabs, Tag } from "antd";
 import { BadgeProps } from "antd/lib";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactJson from "react-json-view-ts";
+import { Prism, SyntaxHighlighterProps } from "react-syntax-highlighter";
 import { PAGE_SIZE } from "../lib/config";
 import { UserContext } from "../lib/context";
 import { AppRunTask, AppRunTaskStatusError, AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting, UserProfile } from "../model/app";
@@ -12,6 +13,7 @@ import { formatDate } from "../utils/time";
 import { UserProfileDropdown } from "./user_profile_dropdown";
 import UserSelect from "./user_select";
 
+const SyntaxHighlighter = (Prism as any) as typeof React.Component<SyntaxHighlighterProps>;
 const columns = [{
     title: '创建者',
     dataIndex: 'operator',
@@ -66,10 +68,6 @@ const columns = [{
                 return null;
         }
     }
-}, {
-    title: '错误信息',
-    dataIndex: 'error',
-    key: 'error',
 }];
 
 export default function TaskTable() {
@@ -106,6 +104,15 @@ export default function TaskTable() {
             children: <ReactJson src={obj} theme={"threezerotwofour"}
                 style={{ overflow: "scroll" }} collapsed={false} name={null} />
         });
+        tabs.push({
+            key: "error",
+            label: '报错信息',
+            children: task.error ? <SyntaxHighlighter language="text"
+                lineProps={{ style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' } }} wrapLines
+            >
+                {task.error}
+            </SyntaxHighlighter> : <Empty />
+        });
         return tabs;
     }
 
@@ -114,6 +121,7 @@ export default function TaskTable() {
             title={me?.role === Administrator && <UserSelect onChange={setSelectedUserID} />}
             extra={<Button type="primary" onClick={() => tasks.mutate()}>刷新</Button>}>
             <Table columns={columns} dataSource={tasks.data?.data}
+                scroll={{ x: "100%" }}
                 rowKey="uuid"
                 pagination={{
                     pageSize: PAGE_SIZE,
