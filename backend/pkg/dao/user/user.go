@@ -19,14 +19,8 @@ func NewDAO(db *gorm.DB) *DaoImpl {
 	return &DaoImpl{db}
 }
 
-func (d *DaoImpl) FindById(ctx context.Context, id uint) (*dbm.User, error) {
-	u := query.Use(d.db).User
-	return u.WithContext(ctx).Where(u.ID.Eq(id)).Take()
-}
-
-func (d *DaoImpl) FindByUsernameOrEmail(ctx context.Context, username, email string) (*dbm.User, error) {
-	u := query.Use(d.db).User
-	return u.WithContext(ctx).Where(u.Username.Eq(username)).Or(u.Email.Eq(email)).Take()
+func (d *DaoImpl) Find(ctx context.Context, filter *dbm.UserFilter) (*dbm.User, error) {
+	return d.getDAO(ctx, filter).Take()
 }
 
 func (d *DaoImpl) Save(ctx context.Context, users ...*dbm.User) error {
@@ -37,14 +31,17 @@ func (d *DaoImpl) Save(ctx context.Context, users ...*dbm.User) error {
 func (d *DaoImpl) getConditions(filter *dbm.UserFilter) []gen.Condition {
 	u := query.Use(d.db).User
 	var conditions []gen.Condition
+	if filter.ID != nil {
+		conditions = append(conditions, u.ID.Eq(*filter.ID))
+	}
 	if filter.RealName != nil {
-		conditions = append(conditions, u.RealName.Like(*filter.RealName+"%"))
+		conditions = append(conditions, u.RealName.Like(*filter.RealName))
 	}
 	if filter.Username != nil {
-		conditions = append(conditions, u.Username.Like(*filter.Username+"%"))
+		conditions = append(conditions, u.Username.Like(*filter.Username))
 	}
 	if filter.Email != nil {
-		conditions = append(conditions, u.Email.Like(*filter.Email+"%"))
+		conditions = append(conditions, u.Email.Like(*filter.Email))
 	}
 	return conditions
 }

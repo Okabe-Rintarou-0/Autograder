@@ -4,21 +4,19 @@ import (
 	"context"
 	"errors"
 
+	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
-
-	"autograder/pkg/model/dbm"
+	"gorm.io/gorm"
 
 	"autograder/pkg/config"
 	"autograder/pkg/dao"
 	"autograder/pkg/messages"
 	"autograder/pkg/model/assembler"
+	"autograder/pkg/model/dbm"
 	"autograder/pkg/model/entity"
 	"autograder/pkg/model/request"
 	"autograder/pkg/model/response"
 	"autograder/pkg/utils"
-
-	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type ServiceImpl struct {
@@ -65,7 +63,10 @@ func (s *ServiceImpl) ImportCanvasUsers(ctx context.Context, courseID int64) (*r
 }
 
 func (s *ServiceImpl) Register(ctx context.Context, request *request.RegisterRequest) (*response.RegisterResponse, error) {
-	user, err := s.groupDAO.UserDAO.FindByUsernameOrEmail(ctx, request.Username, request.Email)
+	user, err := s.groupDAO.UserDAO.Find(ctx, &dbm.UserFilter{
+		Username: &request.Username,
+		Email:    &request.Email,
+	})
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.Errorf("[User Service][Register] call UserDAO.FindByUsernameOrEmail error %+v", err)
 		return nil, err
@@ -94,7 +95,11 @@ func (s *ServiceImpl) Register(ctx context.Context, request *request.RegisterReq
 }
 
 func (s *ServiceImpl) Login(ctx context.Context, request *request.LoginRequest) (*response.LoginResponse, error) {
-	user, err := s.groupDAO.UserDAO.FindByUsernameOrEmail(ctx, request.Identifier, request.Identifier)
+	identifier := request.Identifier
+	user, err := s.groupDAO.UserDAO.Find(ctx, &dbm.UserFilter{
+		Username: &identifier,
+		Email:    &identifier,
+	})
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.Errorf("[User Service][Login] call UserDAO.FindByUsernameOrEmail error %+v", err)
 		return nil, err
@@ -119,7 +124,23 @@ func (s *ServiceImpl) Login(ctx context.Context, request *request.LoginRequest) 
 }
 
 func (s *ServiceImpl) GetUser(ctx context.Context, userID uint) (*entity.User, error) {
-	user, err := s.groupDAO.UserDAO.FindById(ctx, userID)
+	user, err := s.groupDAO.UserDAO.Find(ctx, &dbm.UserFilter{
+		ID: &userID,
+	})
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.Errorf("[User Service][GetMe] call UserDAO.FindByID error %+v", err)
+		return nil, err
+	}
+	if user == nil {
+		return nil, nil
+	}
+	return assembler.ConvertUserDbmToEntity(user), nil
+}
+
+func (s *ServiceImpl) GetUserByUsername(ctx context.Context, username string) (*entity.User, error) {
+	user, err := s.groupDAO.UserDAO.Find(ctx, &dbm.UserFilter{
+		Username: &username,
+	})
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.Errorf("[User Service][GetMe] call UserDAO.FindByID error %+v", err)
 		return nil, err
@@ -131,7 +152,9 @@ func (s *ServiceImpl) GetUser(ctx context.Context, userID uint) (*entity.User, e
 }
 
 func (s *ServiceImpl) ChangePassword(ctx context.Context, userID uint, newPassword string) error {
-	user, err := s.groupDAO.UserDAO.FindById(ctx, userID)
+	user, err := s.groupDAO.UserDAO.Find(ctx, &dbm.UserFilter{
+		ID: &userID,
+	})
 	if err != nil {
 		logrus.Errorf("[User Service][ChangePassword] call UserDAO.FindByID error %+v", err)
 		return err
@@ -143,6 +166,7 @@ func (s *ServiceImpl) ChangePassword(ctx context.Context, userID uint, newPasswo
 func (s *ServiceImpl) ListUsers(ctx context.Context, keyword string, page *entity.Page) (*response.ListUsersResponse, error) {
 	var filter *dbm.UserFilter
 	if len(keyword) > 0 {
+		keyword += "%"
 		filter = &dbm.UserFilter{
 			RealName: &keyword,
 			Username: &keyword,

@@ -7,13 +7,31 @@ import (
 	"autograder/pkg/model/response"
 )
 
+func ConvertUserDbmToProfile(m *dbm.User) *dbm.UserProfile {
+	return &dbm.UserProfile{
+		ID:       m.ID,
+		Username: m.Username,
+		Role:     m.Role,
+		RealName: m.RealName,
+		Email:    m.Email,
+	}
+}
+
+func ConvertUserProfileDbmToResponse(m *dbm.UserProfile) *response.UserProfile {
+	return &response.UserProfile{
+		ID:       m.ID,
+		Username: m.Username,
+		Role:     m.Role,
+		RealName: m.RealName,
+		Email:    m.Email,
+	}
+}
+
 func ConvertAppRunTaskDbmToResponse(m *dbm.AppRunTaskWithUser) *response.AppRunTask {
 	return &response.AppRunTask{
 		UUID:        m.UUID,
-		UserID:      m.UserID,
-		Username:    m.Username,
-		Email:       m.Email,
-		RealName:    m.RealName,
+		User:        ConvertUserProfileDbmToResponse(m.User),
+		Operator:    ConvertUserProfileDbmToResponse(m.Operator),
 		Status:      m.Status,
 		CreatedAt:   m.CreatedAt,
 		Pass:        m.Pass,

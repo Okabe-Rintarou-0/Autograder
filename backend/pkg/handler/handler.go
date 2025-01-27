@@ -6,10 +6,6 @@ import (
 	"net/http"
 	"path"
 	"path/filepath"
-	"time"
-
-	"autograder/pkg/model/dbm"
-	"autograder/pkg/model/request/canvas"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -20,6 +16,7 @@ import (
 	"autograder/pkg/model/constants"
 	"autograder/pkg/model/entity"
 	"autograder/pkg/model/request"
+	"autograder/pkg/model/request/canvas"
 	"autograder/pkg/model/response"
 	"autograder/pkg/service"
 	"autograder/pkg/utils"
@@ -53,6 +50,7 @@ func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
 		logrus.Errorf("[validateParams] failed to bind request: %v", err)
 		return nil, err
 	}
+	logrus.Infof("[validateParams] req: %s", utils.FormatJsonString(req))
 
 	file := req.File
 	logrus.Infof("[validateParams] file: %+v", file.Filename)
@@ -68,17 +66,25 @@ func (h *Handler) validateParams(c *gin.Context) (*entity.AppInfo, error) {
 		return nil, err
 	}
 
-	userID := c.Value("userID").(uint)
-	user, err := h.groupSvc.UserSvc.GetUser(c.Request.Context(), userID)
+	operatorID := c.Value("userID").(uint)
+	operator, err := h.groupSvc.UserSvc.GetUser(c.Request.Context(), operatorID)
 	if err != nil {
 		return nil, err
 	}
 
+	user := operator
+	if req.Username != nil && operator.IsAdmin() {
+		user, err = h.groupSvc.UserSvc.GetUserByUsername(c.Request.Context(), *req.Username)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	info := &entity.AppInfo{
 		User:               user,
+		Operator:           operator,
 		UUID:               uuid.NewString(),
 		ZipFileName:        file.Filename,
-		UploadTime:         time.Now(),
 		AuthenticationType: entity.AuthenticationType(req.AuthenticationType),
 		JDKVersion:         req.JdkVersion,
 	}
@@ -205,10 +211,10 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 	logrus.Infof("[Handler][HandleListAppTasks] request: %s", utils.FormatJsonString(req))
 
 	var userIDPtr *uint
-	if user.Role != dbm.Administrator {
-		userIDPtr = &userID
-	} else {
+	if user.IsAdmin() {
 		userIDPtr = req.UserID
+	} else {
+		userIDPtr = &userID
 	}
 	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userIDPtr, page)
 	if err != nil {

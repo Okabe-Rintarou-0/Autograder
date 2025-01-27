@@ -1,7 +1,6 @@
 package task
 
 import (
-	"autograder/pkg/model/constants"
 	"context"
 	"encoding/json"
 	"io"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"autograder/pkg/model/constants"
 
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/sirupsen/logrus"

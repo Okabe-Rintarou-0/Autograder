@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"autograder/pkg/config"
 	"autograder/pkg/model/dbm"
@@ -28,18 +27,19 @@ const (
 
 type AppInfo struct {
 	User               *User
+	Operator           *User
 	UUID               string
 	ZipFileName        string
-	UploadTime         time.Time
 	AuthenticationType AuthenticationType
 	JDKVersion         int32
 }
 
 func (a *AppInfo) ToDBM(status int32) *dbm.AppRunTask {
 	return &dbm.AppRunTask{
-		UUID:   a.UUID,
-		UserID: a.User.UserID,
-		Status: status,
+		UUID:       a.UUID,
+		UserID:     a.User.UserID,
+		OperatorID: a.Operator.UserID,
+		Status:     status,
 	}
 }
 

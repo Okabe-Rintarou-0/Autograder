@@ -1,27 +1,30 @@
-import { Badge, Button, Card, Select, Space, Spin, Table, Tabs, Tag, Tooltip } from "antd";
-import { useTasks } from "../service/task";
-import useMessage from "antd/es/message/useMessage";
-import { useContext, useEffect, useState } from "react";
 import { LazyLog } from "@melloware/react-logviewer";
-import { AppRunTask } from "../model/app";
-import { AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting } from "../model/app";
+import { Badge, Button, Card, Space, Table, Tabs, Tag } from "antd";
 import { BadgeProps } from "antd/lib";
+import { useContext, useEffect, useState } from "react";
 import ReactJson from "react-json-view-ts";
-import { formatDate } from "../utils/time";
-import { useDebounceFn } from "ahooks";
-import { listUsers } from "../service/user";
-import { Administrator, User } from "../model/user";
+import { PAGE_SIZE } from "../lib/config";
 import { UserContext } from "../lib/context";
+import { AppRunTask, AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting, UserProfile } from "../model/app";
+import { Administrator } from "../model/user";
+import { useTasks } from "../service/task";
+import { formatDate } from "../utils/time";
+import { UserProfileDropdown } from "./user_profile_dropdown";
+import UserSelect from "./user_select";
 
-const pageSize = 20;
 const columns = [{
     title: '创建者',
-    dataIndex: 'real_name',
-    key: 'real_name',
-    render: (real_name: string, task: AppRunTask) => {
-        return <Tooltip title={`${task.username}\n${task.email}`}>
-            <Tag color="blue">{real_name}</Tag>
-        </Tooltip>
+    dataIndex: 'operator',
+    key: 'operator',
+    render: (operator: UserProfile) => {
+        return <UserProfileDropdown user={operator} />
+    },
+}, {
+    title: '用户',
+    dataIndex: 'user',
+    key: 'user',
+    render: (user: UserProfile) => {
+        return <UserProfileDropdown user={user} />
     },
 }, {
     title: '创建时间',
@@ -64,16 +67,9 @@ const columns = [{
 }];
 
 export default function TaskTable() {
-    const [messageApi, contextHolder] = useMessage();
-    const [fetching, setFetching] = useState<boolean>(false);
     const [pageNo, setPageNo] = useState<number>(1);
-    const [users, setUsers] = useState<User[]>([]);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [userPageNo, setUserPageNo] = useState<number>(1);
-    const [userKeyword, setUserKeyword] = useState<string>("");
-    const [userHasNextPage, setUserHasNextPage] = useState<boolean>(false);
     const [selectedUserID, setSelectedUserID] = useState<number | undefined>();
-    const tasks = useTasks(pageNo, pageSize, selectedUserID);
+    const tasks = useTasks(pageNo, PAGE_SIZE, selectedUserID);
     const me = useContext(UserContext);
 
     useEffect(() => {
@@ -107,87 +103,14 @@ export default function TaskTable() {
         return tabs;
     }
 
-    const { run: debounceFetcher } = useDebounceFn(
-        (keyword: string) => {
-            keyword = keyword.trim();
-            console.log(keyword)
-            if (keyword) {
-                setFetching(true);
-                setUserKeyword(keyword);
-                setUserPageNo(1);
-                listUsers(keyword, 1, pageSize).then((resp) => {
-                    if (resp.data) {
-                        setUserHasNextPage((userPageNo - 1) * pageSize + resp.data.length < resp.total);
-                        setUsers(resp.data);
-                        setUserPageNo(userPageNo => userPageNo + 1);
-                    } else {
-                        setUsers([]);
-                        setUserHasNextPage(false);
-                    }
-                    setFetching(false);
-                });
-            }
-        },
-        {
-            wait: 400,
-        }
-    );
-
-    const loadMore = () => {
-        if (!userHasNextPage) {
-            return;
-        }
-        if (userKeyword) {
-            setLoadingMore(true);
-            listUsers(userKeyword, userPageNo, pageSize).then((resp) => {
-                if (resp.data) {
-                    setUserHasNextPage((userPageNo - 1) * pageSize + resp.data.length < resp.total);
-                    setUsers(users.concat(resp.data));
-                    setUserPageNo(userPageNo => userPageNo + 1);
-                }
-                setLoadingMore(false);
-            });
-        }
-    }
-
-    const onPopupScroll = (e: { target?: any }) => {
-        const { target } = e;
-        if (target.scrollTop + target.offsetHeight >= target.scrollHeight) {
-            loadMore();
-        }
-    };
-
     return (
         <Card className="card-container"
-            title={me?.role === Administrator && <Select
-                style={{ width: "200px" }}
-                showSearch
-                onChange={setSelectedUserID}
-                placeholder="指定用户"
-                filterOption={false}
-                onSearch={debounceFetcher}
-                onPopupScroll={onPopupScroll}
-                notFoundContent={fetching ? <Spin size="small" /> : null}
-                dropdownRender={(menu) => (
-                    <>
-                        {menu}
-                        {loadingMore ? (
-                            <Spin size="small" style={{ textAlign: 'center' }} />
-                        ) : null}
-                    </>
-                )}>
-                {users.map((user) => {
-                    return <Select.Option key={user.id} value={user.id}>
-                        {`${user.real_name}(${user.username})`}
-                    </Select.Option>
-                })}
-            </Select>}
+            title={me?.role === Administrator && <UserSelect onChange={setSelectedUserID} />}
             extra={<Button type="primary" onClick={() => tasks.mutate()}>刷新</Button>}>
-            {contextHolder}
             <Table columns={columns} dataSource={tasks.data?.data}
                 rowKey="uuid"
                 pagination={{
-                    pageSize,
+                    pageSize: PAGE_SIZE,
                     total: tasks.data?.total,
                     current: pageNo,
                     onChange: (pageNo: number) => {

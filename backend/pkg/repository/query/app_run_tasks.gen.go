@@ -33,6 +33,7 @@ func newAppRunTask(db *gorm.DB, opts ...gen.DOOption) appRunTask {
 	_appRunTask.DeletedAt = field.NewField(tableName, "deleted_at")
 	_appRunTask.UUID = field.NewString(tableName, "uuid")
 	_appRunTask.UserID = field.NewUint(tableName, "user_id")
+	_appRunTask.OperatorID = field.NewUint(tableName, "operator_id")
 	_appRunTask.Status = field.NewInt32(tableName, "status")
 	_appRunTask.Pass = field.NewInt32(tableName, "pass")
 	_appRunTask.Total = field.NewInt32(tableName, "total")
@@ -53,6 +54,7 @@ type appRunTask struct {
 	DeletedAt   field.Field
 	UUID        field.String
 	UserID      field.Uint
+	OperatorID  field.Uint
 	Status      field.Int32
 	Pass        field.Int32
 	Total       field.Int32
@@ -79,6 +81,7 @@ func (a *appRunTask) updateTableName(table string) *appRunTask {
 	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.UUID = field.NewString(table, "uuid")
 	a.UserID = field.NewUint(table, "user_id")
+	a.OperatorID = field.NewUint(table, "operator_id")
 	a.Status = field.NewInt32(table, "status")
 	a.Pass = field.NewInt32(table, "pass")
 	a.Total = field.NewInt32(table, "total")
@@ -109,13 +112,14 @@ func (a *appRunTask) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *appRunTask) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 10)
+	a.fieldMap = make(map[string]field.Expr, 11)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["uuid"] = a.UUID
 	a.fieldMap["user_id"] = a.UserID
+	a.fieldMap["operator_id"] = a.OperatorID
 	a.fieldMap["status"] = a.Status
 	a.fieldMap["pass"] = a.Pass
 	a.fieldMap["total"] = a.Total

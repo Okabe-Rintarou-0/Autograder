@@ -1,6 +1,11 @@
 package testcase
 
 import (
+	"context"
+	"os"
+
+	"github.com/sirupsen/logrus"
+
 	"autograder/pkg/config"
 	"autograder/pkg/dao"
 	"autograder/pkg/messages"
@@ -9,9 +14,6 @@ import (
 	"autograder/pkg/model/request"
 	"autograder/pkg/model/response"
 	"autograder/pkg/utils"
-	"context"
-	"github.com/sirupsen/logrus"
-	"os"
 )
 
 type ServiceImpl struct {

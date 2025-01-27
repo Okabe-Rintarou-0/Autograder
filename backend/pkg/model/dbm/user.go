@@ -20,6 +20,7 @@ type User struct {
 }
 
 type UserFilter struct {
+	ID       *uint
 	RealName *string
 	Username *string
 	Email    *string

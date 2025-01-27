@@ -6,6 +6,7 @@ type SubmitAppRequest struct {
 	File               *multipart.FileHeader `form:"file" binding:"required"`
 	JdkVersion         int32                 `form:"jdk_version" binding:"required"`
 	AuthenticationType int64                 `form:"authentication_type" binding:"required"`
+	Username           *string               `form:"username"`
 }
 
 type ListAppRunTasksRequest struct {

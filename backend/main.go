@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"autograder/db_http_server"
 	"autograder/pkg/config"
 	"autograder/pkg/dal/mysql"
@@ -9,7 +11,6 @@ import (
 	"autograder/pkg/interceptor"
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/service"
-	"context"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"

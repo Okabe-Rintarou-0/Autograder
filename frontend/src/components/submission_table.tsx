@@ -16,7 +16,7 @@ interface SubmissionTableProps {
 
 export default function SubmissionTable(props: SubmissionTableProps) {
     const { courseID, assignmentID, submissions, isLoading, onSubmit } = props;
-    const users = useCourseUsers(courseID, submissions.length > 0);
+    const users = useCourseUsers(courseID);
     const [selectedAttachment, setSelectedAttachment] = useState<Attachment | undefined>();
     const usersMap = useMemo(() => {
         const m = new Map<number, User>();
@@ -31,6 +31,7 @@ export default function SubmissionTable(props: SubmissionTableProps) {
         title: '学生',
         dataIndex: 'user',
         key: 'user',
+        render: (user: User | undefined) => user?.name
     }, {
         title: '文件',
         dataIndex: 'display_name',
@@ -50,20 +51,6 @@ export default function SubmissionTable(props: SubmissionTableProps) {
         dataIndex: 'late',
         key: 'late',
         render: (late: boolean) => late ? <Tag color="red">迟交</Tag> : <Tag color="green">按时提交</Tag>
-    }, {
-        title: '操作',
-        dataIndex: 'operation',
-        key: 'operation',
-        render: (_: any, attachment: Attachment) => (
-            <Space>
-                {attachment.url && <a onClick={e => {
-                    e.preventDefault();
-                }}>下载</a>}
-                <a onClick={e => {
-                    e.preventDefault();
-                }}>预览</a>
-            </Space>
-        ),
     }];
 
     const attachments = useMemo(() => {
@@ -74,7 +61,7 @@ export default function SubmissionTable(props: SubmissionTableProps) {
                 continue;
             }
             for (let attachment of thisAttachments) {
-                attachment.user = usersMap.get(submission.user_id)?.name;
+                attachment.user = usersMap.get(submission.user_id);
                 attachment.user_id = submission.user_id;
                 attachment.submitted_at = submission.submitted_at;
                 attachment.grade = submission.grade;

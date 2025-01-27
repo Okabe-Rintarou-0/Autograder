@@ -1,5 +1,4 @@
 import { Space } from "antd";
-import useMessage from "antd/es/message/useMessage";
 import { useState } from "react";
 import { ModalChildrenProps } from "../lib/hooks";
 import { Attachment } from "../model/canvas/course";
@@ -13,7 +12,6 @@ interface SelectSubmissionFormProps {
 }
 
 export default function SelectSubmissionForm(props: ModalChildrenProps<SelectSubmissionFormProps>) {
-    const [messageApi, contextHolder] = useMessage();
     const [selectedCourseID, setSelectedCourseID] = useState<number>(0);
     const [selectedAssignmentID, setSelectedAssignmentID] = useState<number>(0);
     const courses = useCourses(props.isOpen);
@@ -21,7 +19,6 @@ export default function SelectSubmissionForm(props: ModalChildrenProps<SelectSub
     const submissions = useAssignmentSubmissions(selectedCourseID, selectedAssignmentID, props.isOpen);
 
     return <Space direction="vertical" size={"large"} style={{ width: "100%" }}>
-        {contextHolder}
         <CourseSelect courses={courses.data ?? []} onChange={setSelectedCourseID} />
         <AssignmentSelect assignments={assignments.data ?? []} onChange={setSelectedAssignmentID} />
         <SubmissionTable courseID={selectedCourseID} assignmentID={selectedAssignmentID}

@@ -2,6 +2,7 @@ package testcase
 
 import (
 	"context"
+
 	"gorm.io/gen"
 	"gorm.io/gorm/clause"
 
@@ -48,7 +49,7 @@ func (d *DaoImpl) SaveIfNotExist(ctx context.Context, testcases ...*dbm.Testcase
 	t := query.Use(d.db).Testcase
 	return t.WithContext(ctx).Clauses(&clause.OnConflict{
 		DoNothing: true,
-	}).Save(testcases...)
+	}).Create(testcases...)
 }
 
 func (d *DaoImpl) Save(ctx context.Context, testcases ...*dbm.Testcase) error {

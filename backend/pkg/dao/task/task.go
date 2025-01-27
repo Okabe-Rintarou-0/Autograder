@@ -3,6 +3,8 @@ package task
 import (
 	"context"
 
+	"autograder/pkg/model/assembler"
+
 	"gorm.io/gen"
 
 	"autograder/pkg/utils"
@@ -41,7 +43,7 @@ func (d *DaoImpl) SaveIfNotExist(ctx context.Context, tasks ...*dbm.AppRunTask) 
 	t := query.Use(d.db).AppRunTask
 	return t.WithContext(ctx).Clauses(&clause.OnConflict{
 		DoNothing: true,
-	}).Save(tasks...)
+	}).Create(tasks...)
 }
 
 func (d *DaoImpl) ListByPage(ctx context.Context, filter *dbm.TaskFilter, page *dbm.Page) (*dbm.ModelPage[*dbm.AppRunTaskWithUser], error) {
@@ -60,9 +62,11 @@ func (d *DaoImpl) ListByPage(ctx context.Context, filter *dbm.TaskFilter, page *
 	userIDs := utils.Map(tasks, func(v *dbm.AppRunTask) uint {
 		return v.UserID
 	})
+	operatorIDs := utils.Map(tasks, func(v *dbm.AppRunTask) uint { return v.OperatorID })
+	allUserIDs := utils.Unique(append(userIDs, operatorIDs...))
 
 	u := query.Use(d.db).User
-	users, err := u.WithContext(ctx).Where(u.ID.In(userIDs...)).Find()
+	users, err := u.WithContext(ctx).Where(u.ID.In(allUserIDs...)).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -76,13 +80,15 @@ func (d *DaoImpl) ListByPage(ctx context.Context, filter *dbm.TaskFilter, page *
 		if !ok {
 			continue
 		}
+		operator, ok := usersMap[task.OperatorID]
+		if !ok {
+			continue
+		}
 		models = append(models, &dbm.AppRunTaskWithUser{
 			Model:       task.Model,
 			UUID:        task.UUID,
-			UserID:      task.UserID,
-			Username:    user.Username,
-			RealName:    user.RealName,
-			Email:       user.Email,
+			User:        assembler.ConvertUserDbmToProfile(user),
+			Operator:    assembler.ConvertUserDbmToProfile(operator),
 			Status:      task.Status,
 			Pass:        task.Pass,
 			Total:       task.Total,
@@ -101,6 +107,9 @@ func (d *DaoImpl) getConditions(filter *dbm.TaskFilter) []gen.Condition {
 	var conditions []gen.Condition
 	if filter.UserID != nil {
 		conditions = append(conditions, t.UserID.Eq(*filter.UserID))
+	}
+	if filter.OperatorID != nil {
+		conditions = append(conditions, t.OperatorID.Eq(*filter.OperatorID))
 	}
 	return conditions
 }

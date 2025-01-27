@@ -12,7 +12,10 @@ export async function submitApp(info: AppInfo) {
     formData.append('jdk_version', info.jdkVersion.toString());
     formData.append('authentication_type', info.authenticationType.toString());
     formData.append('file', info.file[0].originFileObj as FileType)
-    console.log("formData", info.file[0].originFileObj);
+    if (info.username) {
+        formData.append('username', info.username);
+    }
+
     const resp = await axios.post<SubmitAppResponse>('/api/run', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'

@@ -14,23 +14,32 @@ const (
 type AppRunTask struct {
 	gorm.Model
 
-	UUID   string `gorm:"type:varchar(36);uniqueIndex"`
-	UserID uint   `gorm:"not null"`
-	Status int32  `gorm:"not null"`
-	Pass   int32  `gorm:"not null"`
-	Total  int32  `gorm:"not null"`
+	UUID string `gorm:"type:varchar(36);uniqueIndex"`
+	// Actual bound user
+	UserID uint `gorm:"not null"`
+	// Operator
+	OperatorID uint  `gorm:"not null"`
+	Status     int32 `gorm:"not null"`
+	Pass       int32 `gorm:"not null"`
+	Total      int32 `gorm:"not null"`
 
 	TestResults *string `gorm:"type:json"`
+}
+
+type UserProfile struct {
+	ID       uint
+	Username string
+	RealName string
+	Email    string
+	Role     int32
 }
 
 type AppRunTaskWithUser struct {
 	gorm.Model
 
 	UUID        string
-	UserID      uint
-	Username    string
-	RealName    string
-	Email       string
+	User        *UserProfile
+	Operator    *UserProfile
 	Status      int32
 	Pass        int32
 	Total       int32
@@ -38,5 +47,6 @@ type AppRunTaskWithUser struct {
 }
 
 type TaskFilter struct {
-	UserID *uint
+	UserID     *uint
+	OperatorID *uint
 }

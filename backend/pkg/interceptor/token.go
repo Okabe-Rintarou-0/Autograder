@@ -1,6 +1,7 @@
 package interceptor
 
 import (
+	"autograder/pkg/model/dbm"
 	"net/http"
 	"time"
 
@@ -18,7 +19,9 @@ import (
 func NewRoleInterceptor(role int32, groupDAO *dao.GroupDAO) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.Value("userID").(uint)
-		user, err := groupDAO.UserDAO.FindById(c.Request.Context(), userID)
+		user, err := groupDAO.UserDAO.Find(c.Request.Context(), &dbm.UserFilter{
+			ID: &userID,
+		})
 		if err != nil {
 			logrus.Errorf("[TokenIntercept] error %+v", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())

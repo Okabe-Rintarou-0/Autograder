@@ -1,11 +1,12 @@
 import { useMemoizedFn } from "ahooks";
 import { Button, Card, Input, Space, Table } from "antd";
-import useMessage from "antd/es/message/useMessage";
 import { useState } from "react";
+import { Email } from "../components/email";
 import ImportCanvasUsersForm from "../components/import_canvas_users_form";
 import { PrivateLayout } from "../components/layout";
 import RegisterUserForm from "../components/register_user_form";
 import RoleTag from "../components/role_tag";
+import { PAGE_SIZE } from "../lib/config";
 import { useModal } from "../lib/hooks";
 import { Administrator } from "../model/user";
 import { useUsers } from "../service/user";
@@ -32,7 +33,7 @@ const columns = [{
     title: '邮箱',
     dataIndex: 'email',
     key: 'email',
-    render: (email: string) => <a href={`mailto:${email}`}>{email}</a>
+    render: (email: string) => <Email email={email} />
 }, {
     title: '角色',
     dataIndex: 'role',
@@ -41,11 +42,9 @@ const columns = [{
 }];
 
 export default function UsersPage() {
-    const pageSize = 20;
-    const [messageApi, contextHolder] = useMessage();
     const [pageNo, setPageNo] = useState<number>(1);
     const [keyword, setKeyword] = useState<string>("");
-    const users = useUsers(keyword, pageNo, pageSize);
+    const users = useUsers(keyword, pageNo, PAGE_SIZE);
 
     const { modal: RegisterUserModal,
         open: openRegisterUserModal,
@@ -64,7 +63,6 @@ export default function UsersPage() {
 
     return (
         <PrivateLayout forRole={Administrator}>
-            {contextHolder}
             <RegisterUserModal onOk={onRegisterUser}
                 destroyOnClose
                 title={"导入"} footer={null} width={800}
@@ -89,7 +87,7 @@ export default function UsersPage() {
                 <Table columns={columns} dataSource={users.data?.data}
                     rowKey="id"
                     pagination={{
-                        pageSize,
+                        pageSize: PAGE_SIZE,
                         total: users.data?.total,
                         current: pageNo,
                         onChange: (pageNo: number) => {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"autograder/pkg/utils"
 
@@ -67,7 +68,16 @@ func (c *DAOImpl) ListAssignmentSubmissions(ctx context.Context, courseID, assig
 		"%s/api/v1/courses/%d/assignments/%d/submissions",
 		BASEURL, courseID, assignmentID,
 	)
-	return listItems[canvas.Submission](c.innerCli, URL, c.token)
+	submissions, err := listItems[canvas.Submission](c.innerCli, URL, c.token)
+	if err != nil {
+		return nil, err
+	}
+	return utils.Filter(submissions, func(submission *canvas.Submission) bool {
+		submission.Attachments = utils.Filter(submission.Attachments, func(v *canvas.Attachment) bool {
+			return v != nil && strings.HasSuffix(v.DisplayName, ".zip")
+		})
+		return len(submission.Attachments) > 0
+	}), nil
 }
 
 func (c *DAOImpl) ListCourseUsers(ctx context.Context, courseID int64) ([]*canvas.User, error) {

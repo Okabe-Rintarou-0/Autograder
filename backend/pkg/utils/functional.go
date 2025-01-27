@@ -45,3 +45,15 @@ func IntoSet[T any, K mapKey](slice []T, mapper func(v T) K) map[K]struct{} {
 	}
 	return dst
 }
+
+func Unique[T mapKey](slice []T) []T {
+	set := map[T]struct{}{}
+	var dst []T
+	for _, v := range slice {
+		if _, ok := set[v]; !ok {
+			set[v] = struct{}{}
+			dst = append(dst, v)
+		}
+	}
+	return dst
+}

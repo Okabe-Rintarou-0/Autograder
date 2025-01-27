@@ -1,3 +1,5 @@
+import { User } from "./user";
+
 export interface Course {
     id: number;
     uuid: string;
@@ -94,7 +96,7 @@ export interface Submission {
 
 export interface Attachment {
     key: React.Key;
-    user?: string;
+    user?: User;
     user_id: number;
     submitted_at?: string;
     grade: string | null;
