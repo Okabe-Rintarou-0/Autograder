@@ -12,11 +12,13 @@ const (
 type User struct {
 	gorm.Model
 
-	Username string `gorm:"type:varchar(32);uniqueIndex"`
-	RealName string `gorm:"type:varchar(64)"`
-	Password string `gorm:"type:varchar(32);not null"`
-	Email    string `gorm:"type:varchar(128);uniqueIndex"`
-	Role     int32  `gorm:"not null;default:1"`
+	Username           string `gorm:"type:varchar(32);uniqueIndex"`
+	RealName           string `gorm:"type:varchar(64)"`
+	Password           string `gorm:"type:varchar(32);not null"`
+	Email              string `gorm:"type:varchar(128);uniqueIndex"`
+	Role               int32  `gorm:"not null;default:1"`
+	JdkVersion         int32  `gorm:"not null;default:17"`
+	AuthenticationType int32  `gorm:"not null;default:1"`
 }
 
 type UserFilter struct {

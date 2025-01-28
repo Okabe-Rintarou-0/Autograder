@@ -21,6 +21,8 @@ export interface User extends BaseResp {
     role: number;
     username: string;
     email: string;
+    jdk_version: number;
+    authentication_type: number;
 }
 
 export interface ListUsersResponse extends ListItemResponse<User> { }

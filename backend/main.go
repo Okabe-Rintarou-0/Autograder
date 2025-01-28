@@ -46,7 +46,8 @@ func main() {
 		GET("/tasks", h.HandleListAppTasks).
 		GET("/users", h.HandleListUsers).
 		POST("/run", h.HandleRunApp).
-		PUT("/me/password", h.HandleChangePassword)
+		POST("/me/password", h.HandleChangePassword).
+		POST("/me/compile", h.HandleUpdateCompilationInfo)
 
 	r.Group("/api",
 		interceptor.NewTokenInterceptor(cfg.Token),
@@ -54,11 +55,11 @@ func main() {
 		GET("/courses", h.HandleGetCourses).
 		GET("/assignments", h.HandleGetAssignments).
 		GET("/submissions", h.HandleGetAssignmentSubmissions).
-		POST("/register", h.HandleRegister).
-		POST("/register/canvas", h.HandleImportCanvasUsers).
+		GET("/testcases", h.HandleListTestcases).
 		GET("/canvas/users", h.HandleGetCourseUsers).
 		POST("/testcases", h.HandleBatchUpdateTestcases).
-		GET("/testcases", h.HandleListTestcases)
+		POST("/register", h.HandleRegister).
+		POST("/register/canvas", h.HandleImportCanvasUsers)
 
 	r.POST("/api/login", h.HandleLogin).
 		GET("/api/logs", h.HandleGetLog)

@@ -162,6 +162,20 @@ func (h *Handler) HandleChangePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, response.NewSucceedBaseResp(messages.ModifySucceed))
 }
 
+func (h *Handler) HandleUpdateCompilationInfo(c *gin.Context) {
+	userID := c.Value("userID").(uint)
+	req := request.UpdateCompilationInfoRequest{}
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to bind request"})
+		return
+	}
+	err := h.groupSvc.UserSvc.UpdateCompilationInfo(c.Request.Context(), userID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "get info internal error"})
+	}
+	c.JSON(http.StatusOK, response.NewSucceedBaseResp(messages.ModifySucceed))
+}
+
 func (h *Handler) HandleRunApp(c *gin.Context) {
 	appInfo, err := h.validateParams(c)
 	if appInfo == nil || err != nil {

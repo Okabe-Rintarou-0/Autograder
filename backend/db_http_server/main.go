@@ -15,7 +15,7 @@ import (
 // example:
 /*
 curl -X POST \
-http://localhost:5000/execute \
+http://localhost:5000/db/execute \
 -H 'Content-Type: application/json' \
 -d '{
   "database": "ebookstore",
@@ -72,6 +72,6 @@ func executeSQL(c *gin.Context) {
 
 func RunDBHTTPServer() {
 	r := gin.Default()
-	r.POST("/execute", executeSQL)
+	r.POST("/db/execute", executeSQL)
 	logrus.Fatal(r.Run(":5000"))
 }

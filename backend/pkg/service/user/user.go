@@ -163,6 +163,19 @@ func (s *ServiceImpl) ChangePassword(ctx context.Context, userID uint, newPasswo
 	return s.groupDAO.UserDAO.Save(ctx, user)
 }
 
+func (s *ServiceImpl) UpdateCompilationInfo(ctx context.Context, userID uint, request *request.UpdateCompilationInfoRequest) error {
+	user, err := s.groupDAO.UserDAO.Find(ctx, &dbm.UserFilter{
+		ID: &userID,
+	})
+	if err != nil {
+		logrus.Errorf("[User Service][UpdateCompilationInfo] call UserDAO.FindByID error %+v", err)
+		return err
+	}
+	user.JdkVersion = request.JdkVersion
+	user.AuthenticationType = request.AuthenticationType
+	return s.groupDAO.UserDAO.Save(ctx, user)
+}
+
 func (s *ServiceImpl) ListUsers(ctx context.Context, keyword string, page *entity.Page) (*response.ListUsersResponse, error) {
 	var filter *dbm.UserFilter
 	if len(keyword) > 0 {

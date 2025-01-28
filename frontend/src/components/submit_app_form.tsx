@@ -24,7 +24,11 @@ export default function SubmitAppForm() {
 
     useEffect(() => {
         if (me) {
-            form.setFieldValue("username", me.username);
+            form.setFieldsValue({
+                username: me.username,
+                jdkVersion: me.jdk_version,
+                authenticationType: me.authentication_type,
+            });
         }
     }, [me]);
 

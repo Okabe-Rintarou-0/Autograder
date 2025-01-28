@@ -1,15 +1,16 @@
+import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/mode-toml";
+import "ace-builds/src-noconflict/theme-github";
 import { useMemoizedFn } from "ahooks";
 import { Button, Card, Space, Switch, Table } from "antd";
-import TextArea from "antd/es/input/TextArea";
 import useMessage from "antd/es/message/useMessage";
 import React, { useMemo } from "react";
-import { Prism, SyntaxHighlighterProps } from "react-syntax-highlighter";
+import AceEditor from "react-ace";
 import { useImmer } from 'use-immer';
 import { Testcase, TestcaseStatusActive, TestcaseStatusInactive } from "../model/testcase";
 import { batchUpdateTestcases, useTestcases } from "../service/testcase";
 import { handleBaseResp } from "../utils/handle_resp";
 
-const SyntaxHighlighter = (Prism as any) as typeof React.Component<SyntaxHighlighterProps>;
 export function TestcaseTable() {
     const [messageApi, contextHolder] = useMessage();
     const [editingTestcaseIDs, setEditingTestcaseIDs] = useImmer<Set<number>>(new Set<number>);
@@ -79,8 +80,14 @@ export function TestcaseTable() {
                 expandedRowRender: (testcase: Testcase) => {
                     const editing = editingTestcaseIDs.has(testcase.id);
                     return <Space direction="vertical" style={{ width: "100%" }}>
+                        <AceEditor mode="toml"
+                            theme="github"
+                            readOnly={!editing}
+                            style={{ width: "100%" }}
+                            onChange={(v) => testcase.content = v}
+                            defaultValue={testcase.content}
+                        />
                         {editing && <>
-                            <TextArea onChange={(e) => testcase.content = e.target.value} defaultValue={testcase.content} style={{ minHeight: "300px" }} />
                             <Space>
                                 <Button type="primary" onClick={() => {
                                     handleUpdateStatus(testcase);
@@ -89,7 +96,6 @@ export function TestcaseTable() {
                                 <Button onClick={() => setEditingTestcaseIDs(ids => { ids.delete(testcase.id) })}>取消</Button>
                             </Space>
                         </>}
-                        {!editing && <SyntaxHighlighter language="toml">{testcase.content}</SyntaxHighlighter>}
                     </Space>;
                 }
             }}

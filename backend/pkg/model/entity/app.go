@@ -7,13 +7,14 @@ import (
 	"strings"
 
 	"autograder/pkg/config"
+	"autograder/pkg/model/constants"
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/utils"
 )
 
 type (
-	AuthenticationType int
-	SubmitAppResult    int
+	AuthenticationType int32
+	SubmitAppResult    int32
 )
 
 const (
@@ -65,20 +66,20 @@ func (a *AppInfo) Validate() bool {
 		return false
 	}
 
-	if a.JDKVersion != 11 && a.JDKVersion != 17 {
+	if !utils.Contains(constants.SupportedJdkVersion, a.JDKVersion) {
 		return false
 	}
 	return true
 }
 
 func (a *AppInfo) AppPath() string {
-	path := filepath.Join(config.Instance.WorkDir, "app", a.GetFileName()+"_"+a.UUID)
-	return path
+	appPath := filepath.Join(config.Instance.WorkDir, "app", a.GetFileName()+"_"+a.UUID)
+	return appPath
 }
 
 func (a *AppInfo) ZipFilePath() string {
-	path := filepath.Join(config.Instance.WorkDir, a.ZipFileName)
-	return path
+	zipFilePath := filepath.Join(config.Instance.WorkDir, a.ZipFileName)
+	return zipFilePath
 }
 
 func (a *AppInfo) UseCookies() bool {

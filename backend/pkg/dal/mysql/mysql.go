@@ -2,14 +2,14 @@ package mysql
 
 import (
 	"fmt"
-
-	"autograder/pkg/config"
-	"autograder/pkg/model/dbm"
-
+	
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"autograder/pkg/config"
+	"autograder/pkg/model/dbm"
 )
 
 func NewDB(cfg *config.MysqlConfig) (*gorm.DB, error) {

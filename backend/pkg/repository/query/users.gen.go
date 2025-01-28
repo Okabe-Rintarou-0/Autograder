@@ -36,6 +36,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.Password = field.NewString(tableName, "password")
 	_user.Email = field.NewString(tableName, "email")
 	_user.Role = field.NewInt32(tableName, "role")
+	_user.JdkVersion = field.NewInt32(tableName, "jdk_version")
+	_user.AuthenticationType = field.NewInt32(tableName, "authentication_type")
 
 	_user.fillFieldMap()
 
@@ -45,16 +47,18 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo userDo
 
-	ALL       field.Asterisk
-	ID        field.Uint
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	Username  field.String
-	RealName  field.String
-	Password  field.String
-	Email     field.String
-	Role      field.Int32
+	ALL                field.Asterisk
+	ID                 field.Uint
+	CreatedAt          field.Time
+	UpdatedAt          field.Time
+	DeletedAt          field.Field
+	Username           field.String
+	RealName           field.String
+	Password           field.String
+	Email              field.String
+	Role               field.Int32
+	JdkVersion         field.Int32
+	AuthenticationType field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -80,6 +84,8 @@ func (u *user) updateTableName(table string) *user {
 	u.Password = field.NewString(table, "password")
 	u.Email = field.NewString(table, "email")
 	u.Role = field.NewInt32(table, "role")
+	u.JdkVersion = field.NewInt32(table, "jdk_version")
+	u.AuthenticationType = field.NewInt32(table, "authentication_type")
 
 	u.fillFieldMap()
 
@@ -104,7 +110,7 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 9)
+	u.fieldMap = make(map[string]field.Expr, 11)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
@@ -114,6 +120,8 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["password"] = u.Password
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["role"] = u.Role
+	u.fieldMap["jdk_version"] = u.JdkVersion
+	u.fieldMap["authentication_type"] = u.AuthenticationType
 }
 
 func (u user) clone(db *gorm.DB) user {

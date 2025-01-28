@@ -1,9 +1,13 @@
 import { LazyLog } from "@melloware/react-logviewer";
+import 'ace-builds/src-noconflict/ace';
+import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/mode-text";
+import "ace-builds/src-noconflict/theme-github";
 import { Badge, Button, Card, Empty, Space, Table, Tabs, Tag } from "antd";
 import { BadgeProps } from "antd/lib";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import AceEditor from "react-ace";
 import ReactJson from "react-json-view-ts";
-import { Prism, SyntaxHighlighterProps } from "react-syntax-highlighter";
 import { PAGE_SIZE } from "../lib/config";
 import { UserContext } from "../lib/context";
 import { AppRunTask, AppRunTaskStatusError, AppRunTaskStatusFail, AppRunTaskStatusRunning, AppRunTaskStatusSucceed, AppRunTaskStatusWaiting, UserProfile } from "../model/app";
@@ -13,7 +17,6 @@ import { formatDate } from "../utils/time";
 import { UserProfileDropdown } from "./user_profile_dropdown";
 import UserSelect from "./user_select";
 
-const SyntaxHighlighter = (Prism as any) as typeof React.Component<SyntaxHighlighterProps>;
 const columns = [{
     title: '创建者',
     dataIndex: 'operator',
@@ -107,11 +110,14 @@ export default function TaskTable() {
         tabs.push({
             key: "error",
             label: '报错信息',
-            children: task.error ? <SyntaxHighlighter language="text"
-                lineProps={{ style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' } }} wrapLines
-            >
-                {task.error}
-            </SyntaxHighlighter> : <Empty />
+            children: task.error ? <AceEditor
+                wrapEnabled
+                mode="text"
+                theme="github"
+                style={{ width: "100%" }}
+                readOnly
+                value={task.error}
+            /> : <Empty />
         });
         return tabs;
     }

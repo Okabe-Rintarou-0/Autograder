@@ -1,4 +1,4 @@
-import { CloudUploadOutlined, CodeOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, CodeOutlined, ConsoleSqlOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Space, theme } from 'antd';
 import { Header } from 'antd/lib/layout/layout';
 import React, { useEffect, useState } from 'react';
@@ -39,6 +39,10 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
                 key: 'testcases',
                 icon: <CodeOutlined />,
                 label: <Link to={'/testcases'}> 测试用例 </Link>,
+            }, {
+                key: 'sql',
+                icon: <ConsoleSqlOutlined />,
+                label: <Link to={'/sql'}> 数据查询 </Link>,
             }];
             items.push(...adminItems);
         }

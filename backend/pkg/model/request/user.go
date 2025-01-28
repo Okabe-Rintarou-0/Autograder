@@ -15,3 +15,8 @@ type RegisterRequest struct {
 type ImportCanvasUsersRequest struct {
 	CourseID int64 `json:"course_id" form:"course_id" binding:"required"`
 }
+
+type UpdateCompilationInfoRequest struct {
+	JdkVersion         int32 `json:"jdk_version" form:"jdk_version" binding:"required"`
+	AuthenticationType int32 `json:"authentication_type" form:"authentication_type" binding:"required"`
+}

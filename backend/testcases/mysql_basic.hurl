@@ -1,5 +1,5 @@
 # Test database initialization
-POST http://localhost:5000/execute
+POST http://localhost:5000/db/execute
 {
     "database": "ebookstore",
     "sql": "select * from users where users.username like 'admin'"

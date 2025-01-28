@@ -1,23 +1,19 @@
-import { FormOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
+import { CodeOutlined, FormOutlined, LogoutOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, Row, Space } from "antd";
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useModal } from "../lib/hooks";
 import { User } from "../model/user";
 import { logout } from "../service/user";
-import ChangePasswordModal from "./change_password_modal";
+import ChangePasswordForm from "./change_password_form";
 import RoleTag from "./role_tag";
 
 export default function NavBar({ me }: { me?: User }) {
-    const [showModal, setShowModal] = useState(false);
+    const {
+        open: openChangePasswordModal,
+        modal: ChangePasswordModal
+    } = useModal(ChangePasswordForm, {});
     const navigate = useNavigate();
 
-    const handleOpenModal = () => {
-        setShowModal(true);
-    }
-
-    const handleCloseModal = () => {
-        setShowModal(false);
-    }
     const dropMenuItems = [
         {
             key: "username",
@@ -37,6 +33,11 @@ export default function NavBar({ me }: { me?: User }) {
             label: "修改密码",
             icon: <FormOutlined />,
         },
+        {
+            key: "compile",
+            label: "修改编译/运行设置",
+            icon: <CodeOutlined />,
+        },
         { key: "/logout", label: "登出", icon: <LogoutOutlined />, danger: true },
     ];
 
@@ -47,7 +48,7 @@ export default function NavBar({ me }: { me?: User }) {
             return;
         }
         if (e.key === "password") {
-            handleOpenModal();
+            openChangePasswordModal();
             return;
         }
         if (e.key.startsWith("/")) {
@@ -61,14 +62,19 @@ export default function NavBar({ me }: { me?: User }) {
             <Col>
                 <Link to="/">Book Store</Link>
             </Col>
-            <Col flex="auto">
-            </Col>
+            <Col flex="auto" />
             {me && <Col>
                 <Dropdown menu={{ onClick: handleMenuClick, items: dropMenuItems }}>
                     <Button shape="circle" icon={<UserOutlined />} />
                 </Dropdown>
             </Col>}
-            {me && showModal && <ChangePasswordModal onOk={handleCloseModal} onCancel={handleCloseModal} />}
+            {me && <ChangePasswordModal
+                title={"修改密码"}
+                open
+                onOk={close}
+                onCancel={close}
+                footer={null}
+                width={800} />}
         </Row>
     );
 }

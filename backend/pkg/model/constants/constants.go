@@ -6,3 +6,5 @@ const (
 	LogTypeHurlTest   = "hurl"
 	LogTypeHurlReport = "report"
 )
+
+var SupportedJdkVersion = []int32{8, 11, 13, 15, 17}

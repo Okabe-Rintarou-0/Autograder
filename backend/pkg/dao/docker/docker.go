@@ -74,6 +74,10 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 		return nil, err
 	}
 
+	removeFn := func() error {
+		return d.cli.RemoveContainer(ctx, id)
+	}
+
 	doneCh := make(chan struct{})
 	commands := entity.NewBashCommandsBuilder().
 		NewCommand("cd", "/app").
@@ -82,6 +86,9 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 		NewCommand("java", "-jar", "target/*.jar").
 		Build()
 	reader, err := d.cli.ExecuteContainer(ctx, id, commands)
+	if err != nil {
+		return removeFn, err
+	}
 	go func() {
 		defer func() {
 			_ = stdoutWriter.Close()
@@ -114,9 +121,6 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 			logrus.Info("[Docker DAO][RunCompileContainer] time out")
 			finished = true
 		}
-	}
-	removeFn := func() error {
-		return d.cli.RemoveContainer(ctx, id)
 	}
 	return removeFn, nil
 }

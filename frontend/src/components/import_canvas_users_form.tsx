@@ -14,7 +14,6 @@ export default function ImportCanvasUsersForm(props: ModalChildrenProps) {
     const [messageApi, contextHolder] = useMessage();
     const courses = useCourses(props.isOpen);
     const handleSubmit = useMemoizedFn(async (request: ImportCanvasUsersRequest) => {
-        console.log(request);
         let resp = await submit<BaseResp>(importCanvasUsersURL, request);
         handleBaseResp(messageApi, resp, props.close);
     });

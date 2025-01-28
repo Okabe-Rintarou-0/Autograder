@@ -54,11 +54,13 @@ func ConvertUserDbmToResponse(m *dbm.User) *response.User {
 
 func ConvertUserDbmToEntity(m *dbm.User) *entity.User {
 	return &entity.User{
-		UserID:   m.ID,
-		Username: m.Username,
-		Email:    m.Email,
-		Role:     m.Role,
-		RealName: m.RealName,
+		UserID:             m.ID,
+		Username:           m.Username,
+		RealName:           m.RealName,
+		Email:              m.Email,
+		Role:               m.Role,
+		JdkVersion:         m.JdkVersion,
+		AuthenticationType: m.AuthenticationType,
 	}
 }
 
