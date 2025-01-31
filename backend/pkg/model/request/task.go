@@ -1,6 +1,8 @@
 package request
 
-import "mime/multipart"
+import (
+	"mime/multipart"
+)
 
 type SubmitAppRequest struct {
 	File               *multipart.FileHeader `form:"file" binding:"required"`
@@ -10,9 +12,12 @@ type SubmitAppRequest struct {
 }
 
 type ListAppRunTasksRequest struct {
-	PageNo   int   `form:"page_no" binding:"required"`
-	PageSize int   `form:"page_size" binding:"required"`
-	UserID   *uint `form:"user_id"`
+	PageNo     int    `form:"page_no" binding:"required"`
+	PageSize   int    `form:"page_size" binding:"required"`
+	UserID     *uint  `form:"user_id"`
+	OperatorID *uint  `form:"operator_id"`
+	StartTime  *int64 `form:"start_time"`
+	EndTime    *int64 `form:"end_time"`
 }
 
 type GetLogRequest struct {

@@ -24,10 +24,16 @@ export async function submitApp(info: AppInfo) {
     return resp.data;
 }
 
-export function useTasks(pageNo: number, pageSize: number, userID?: number) {
+export function useTasks(pageNo: number, pageSize: number, userID?: number, operatorID?: number, range?: [number, number]) {
     let url = `/api/tasks?page_no=${pageNo}&page_size=${pageSize}`
     if (userID) {
         url += `&user_id=${userID}`;
+    }
+    if (operatorID) {
+        url += `&operator_id=${operatorID}`;
+    }
+    if (range) {
+        url += `&start_time=${range[0]}&end_time=${range[1]}`;
     }
     return useSWR<ListAppTasksResponse>(url, fetcher);
 }

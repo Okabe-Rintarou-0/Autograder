@@ -3,8 +3,10 @@ import 'ace-builds/src-noconflict/ace';
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/mode-text";
 import "ace-builds/src-noconflict/theme-github";
-import { Badge, Button, Card, Empty, Space, Table, Tabs, Tag } from "antd";
+import { useMemoizedFn } from "ahooks";
+import { Badge, Button, Card, DatePicker, Empty, Space, Table, Tabs, Tag } from "antd";
 import { BadgeProps } from "antd/lib";
+import { Dayjs } from 'dayjs';
 import { useContext, useEffect, useState } from "react";
 import AceEditor from "react-ace";
 import ReactJson from "react-json-view-ts";
@@ -16,6 +18,8 @@ import { useTasks } from "../service/task";
 import { formatDate } from "../utils/time";
 import { UserProfileDropdown } from "./user_profile_dropdown";
 import UserSelect from "./user_select";
+
+const { RangePicker } = DatePicker;
 
 const columns = [{
     title: '创建者',
@@ -76,7 +80,9 @@ const columns = [{
 export default function TaskTable() {
     const [pageNo, setPageNo] = useState<number>(1);
     const [selectedUserID, setSelectedUserID] = useState<number | undefined>();
-    const tasks = useTasks(pageNo, PAGE_SIZE, selectedUserID);
+    const [selectedOperatorID, setSelectedOperatorID] = useState<number | undefined>();
+    const [dateRange, setDateRange] = useState<[number, number] | undefined>();
+    const tasks = useTasks(pageNo, PAGE_SIZE, selectedUserID, selectedOperatorID, dateRange);
     const me = useContext(UserContext);
 
     useEffect(() => {
@@ -122,9 +128,23 @@ export default function TaskTable() {
         return tabs;
     }
 
+    const handleDatePick = useMemoizedFn((dates) => {
+        if (dates) {
+            const start: Dayjs = dates[0];
+            const end: Dayjs = dates[1];
+            setDateRange([start.valueOf(), end.valueOf()]);
+        } else {
+            setDateRange(undefined);
+        }
+    });
+
     return (
         <Card className="card-container"
-            title={me?.role === Administrator && <UserSelect onChange={setSelectedUserID} />}
+            title={me?.role === Administrator && <Space>
+                <UserSelect placeHolder="指定创建者" onChange={setSelectedOperatorID} />
+                <UserSelect onChange={setSelectedUserID} />
+                <RangePicker showTime onChange={handleDatePick} />
+            </Space>}
             extra={<Button type="primary" onClick={() => tasks.mutate()}>刷新</Button>}>
             <Table columns={columns} dataSource={tasks.data?.data}
                 scroll={{ x: "100%" }}

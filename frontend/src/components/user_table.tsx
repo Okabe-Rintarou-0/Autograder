@@ -72,7 +72,7 @@ export function UserTable() {
         />
         <Card className="card-container"
             title={
-                <Input.Search style={{ width: "200px" }} placeholder="输入关键词" onSearch={setKeyword} />
+                <Input.Search style={{ width: "200px" }} placeholder="输入关键词" onSearch={setKeyword} allowClear />
             }
             extra={
                 <Space>

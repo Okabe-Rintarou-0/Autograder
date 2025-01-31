@@ -112,5 +112,8 @@ func (d *DaoImpl) getConditions(filter *dbm.TaskFilter) []gen.Condition {
 	if filter.OperatorID != nil {
 		conditions = append(conditions, t.OperatorID.Eq(*filter.OperatorID))
 	}
+	if filter.StartTime != nil && filter.EndTime != nil {
+		conditions = append(conditions, t.CreatedAt.Between(*filter.StartTime, *filter.EndTime))
+	}
 	return conditions
 }

@@ -6,11 +6,12 @@ import { User } from "../model/user";
 import { listUsers } from "../service/user";
 
 interface UserSelectProps {
+    placeHolder?: string
     onChange: (userID: number) => void;
 }
 
 export default function UserSelect(props: UserSelectProps) {
-    const { onChange } = props;
+    const { onChange, placeHolder } = props;
     const [fetching, setFetching] = useState<boolean>(false);
     const [users, setUsers] = useState<User[]>([]);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -68,9 +69,10 @@ export default function UserSelect(props: UserSelectProps) {
 
     return <Select
         style={{ width: "200px" }}
+        allowClear
         showSearch
         onChange={onChange}
-        placeholder="指定用户"
+        placeholder={placeHolder ?? "指定用户"}
         filterOption={false}
         onSearch={debounceFetcher}
         onPopupScroll={onPopupScroll}

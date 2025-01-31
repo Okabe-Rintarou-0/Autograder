@@ -1,6 +1,7 @@
 package task
 
 import (
+	"autograder/pkg/model/request"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"autograder/pkg/model/constants"
 
@@ -234,15 +236,32 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	return err
 }
 
-func (s *ServiceImpl) ListAppTasks(ctx context.Context, userID *uint, page *entity.Page) (*response.ListAppTasksResponse, error) {
+func (s *ServiceImpl) ListAppTasks(ctx context.Context, user *entity.User, req *request.ListAppRunTasksRequest) (*response.ListAppTasksResponse, error) {
 	var (
-		modelPage *dbm.ModelPage[*dbm.AppRunTaskWithUser]
-		err       error
+		modelPage     *dbm.ModelPage[*dbm.AppRunTaskWithUser]
+		userIDPtr     *uint
+		operatorIDPtr *uint
+		startTime     *time.Time
+		endTime       *time.Time
+		err           error
 	)
-	filter := &dbm.TaskFilter{
-		UserID: userID,
+	if user.IsAdmin() {
+		userIDPtr = req.UserID
+		operatorIDPtr = req.OperatorID
+		if req.StartTime != nil && req.EndTime != nil {
+			startTime = utils.Pointer(time.UnixMilli(*req.StartTime))
+			endTime = utils.Pointer(time.UnixMilli(*req.EndTime))
+		}
+	} else {
+		userIDPtr = &user.UserID
 	}
-	modelPage, err = s.groupDAO.TaskDAO.ListByPage(ctx, filter, page.ToDBM())
+	filter := &dbm.TaskFilter{
+		UserID:     userIDPtr,
+		OperatorID: operatorIDPtr,
+		StartTime:  startTime,
+		EndTime:    endTime,
+	}
+	modelPage, err = s.groupDAO.TaskDAO.ListByPage(ctx, filter, &dbm.Page{PageNo: req.PageNo, PageSize: req.PageSize})
 
 	if err != nil {
 		logrus.Errorf("[Task Service][ListAppTasks] list tasks error %+v", err)

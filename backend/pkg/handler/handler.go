@@ -218,19 +218,7 @@ func (h *Handler) HandleListAppTasks(c *gin.Context) {
 		return
 	}
 
-	page := &entity.Page{
-		PageNo:   req.PageNo,
-		PageSize: req.PageSize,
-	}
-	logrus.Infof("[Handler][HandleListAppTasks] request: %s", utils.FormatJsonString(req))
-
-	var userIDPtr *uint
-	if user.IsAdmin() {
-		userIDPtr = req.UserID
-	} else {
-		userIDPtr = &userID
-	}
-	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), userIDPtr, page)
+	resp, err := h.groupSvc.TaskSvc.ListAppTasks(c.Request.Context(), user, &req)
 	if err != nil {
 		logrus.Errorf("[Handler][HandleListAppTasks] internal error %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

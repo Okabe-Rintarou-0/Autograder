@@ -77,6 +77,7 @@ func ConvertTestcaseDbmToResponse(m *dbm.Testcase) *response.Testcase {
 func ConvertTestcaseRequestToDBM(m *request.Testcase) *dbm.Testcase {
 	return &dbm.Testcase{
 		Name:    m.Name,
+		Path:    m.Path,
 		Status:  m.Status,
 		Content: m.Content,
 	}

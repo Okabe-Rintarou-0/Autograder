@@ -2,6 +2,7 @@ package dbm
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 const (
@@ -52,4 +53,6 @@ type AppRunTaskWithUser struct {
 type TaskFilter struct {
 	UserID     *uint
 	OperatorID *uint
+	StartTime  *time.Time
+	EndTime    *time.Time
 }
