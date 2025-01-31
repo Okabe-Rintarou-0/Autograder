@@ -35,9 +35,13 @@ export function TestcaseTable() {
         dataIndex: 'id',
         key: 'id',
     }, {
-        title: '路径',
+        title: '名称',
         dataIndex: 'name',
         key: 'name',
+    }, {
+        title: '路径',
+        dataIndex: 'path',
+        key: 'path',
     }, {
         title: '生效状态',
         dataIndex: 'status',

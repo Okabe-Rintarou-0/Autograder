@@ -6,6 +6,7 @@ export const TestcaseStatusInactive = 2;
 export interface Testcase {
     id: number;
     name: string;
+    path: string;
     status: number;
     content: string;
 }

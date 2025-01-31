@@ -3,6 +3,8 @@ package testcase
 import (
 	"context"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -54,22 +56,22 @@ func (s *ServiceImpl) Sync(ctx context.Context) error {
 		return err
 	}
 
-	testcaseFileMap := utils.IntoSet(testcaseFiles, func(v string) string {
+	testcaseFileSet := utils.IntoSet(testcaseFiles, func(v string) string {
 		return v
 	})
 
 	nonExistentModels := utils.Filter(testcaseModels, func(v *dbm.Testcase) bool {
-		_, ok := testcaseFileMap[v.Name]
+		_, ok := testcaseFileSet[v.Path]
 		return !ok
 	})
 
-	nonExistentModelNames := utils.Map(nonExistentModels, func(v *dbm.Testcase) string {
-		return v.Name
+	nonExistentModelPaths := utils.Map(nonExistentModels, func(v *dbm.Testcase) string {
+		return v.Path
 	})
 
-	if len(nonExistentModelNames) > 0 {
+	if len(nonExistentModelPaths) > 0 {
 		err = s.groupDAO.TestcaseDAO.DeleteAll(ctx, &dbm.TestcaseFilter{
-			Names: nonExistentModelNames,
+			Paths: nonExistentModelPaths,
 		})
 	}
 	if err != nil {
@@ -79,8 +81,11 @@ func (s *ServiceImpl) Sync(ctx context.Context) error {
 
 	saveModels := utils.Map(testcaseFiles, func(v string) *dbm.Testcase {
 		bytes, _ := os.ReadFile(v)
+		_, name := filepath.Split(v)
+		name = strings.TrimSuffix(name, filepath.Ext(name))
 		return &dbm.Testcase{
-			Name:    v,
+			Name:    name,
+			Path:    v,
 			Status:  dbm.Active,
 			Content: string(bytes),
 		}

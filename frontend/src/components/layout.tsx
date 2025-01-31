@@ -55,27 +55,29 @@ export function BasicLayout({ children, noSider, me }: React.PropsWithChildren<B
     } = theme.useToken();
 
     return <Layout>
-        <Header><NavBar me={me} /></Header>
-        <Content style={{ padding: '0 48px' }}>
-            <Layout
-                style={{ marginTop: "50px", padding: '24px 0', background: colorBgContainer, borderRadius: borderRadiusLG }}
-            >
-                {!noSider && <Sider style={{ background: colorBgContainer }} width={200} >
-                    <Menu defaultSelectedKeys={selectedKeys} items={getItems()} mode="inline" style={{ height: '100%' }} />
-                </Sider>}
-                <Content style={{ padding: '0 24px', minHeight: 280 }}>
-                    <UserContext.Provider value={me}>
+        <UserContext.Provider value={me}>
+            <Header><NavBar /></Header>
+            <Content style={{ padding: '0 48px' }}>
+                <Layout
+                    style={{ marginTop: "50px", padding: '24px 0', background: colorBgContainer, borderRadius: borderRadiusLG }}
+                >
+                    {!noSider && <Sider style={{ background: colorBgContainer }} width={200} >
+                        <Menu defaultSelectedKeys={selectedKeys} items={getItems()} mode="inline" style={{ height: '100%' }} />
+                    </Sider>}
+                    <Content style={{ padding: '0 24px', minHeight: 280 }}>
+
                         {children}
-                    </UserContext.Provider>
-                </Content>
-            </Layout>
-        </Content>
-        <Footer className="footer">
-            <Space direction="vertical">
-                <Link target="_blank" to="https://github.com/Okabe-Rintarou-0">关于作者</Link>
-                <div>电子书城 REINS 2025</div>
-            </Space>
-        </Footer>
+
+                    </Content>
+                </Layout>
+            </Content>
+            <Footer className="footer">
+                <Space direction="vertical">
+                    <Link target="_blank" to="https://github.com/Okabe-Rintarou-0">关于作者</Link>
+                    <div>电子书城 REINS 2025</div>
+                </Space>
+            </Footer>
+        </UserContext.Provider>
     </Layout>
 }
 

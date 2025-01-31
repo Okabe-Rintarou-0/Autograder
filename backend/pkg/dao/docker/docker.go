@@ -42,13 +42,17 @@ func (d *DaoImpl) checkHTTP() bool {
 	return false
 }
 
-func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.WriteCloser) (ContainerRemoveFn, error) {
+func (d *DaoImpl) RemoveContainer(ctx context.Context, containerID string) error {
+	return d.cli.RemoveContainer(ctx, containerID)
+}
+
+func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.WriteCloser) (string, error) {
 	compileContainerImageName := jdkImageNameMap[info.JDKVersion]
 	if !d.imageReady {
 		err := d.cli.PullImage(ctx, compileContainerImageName)
 		if err != nil {
 			logrus.Errorf("[Docker DAO][RunCompileContainer] call client.PullImage error: %+v", err)
-			return nil, err
+			return "", err
 		}
 		d.imageReady = true
 	}
@@ -56,7 +60,7 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 	appPath := info.ProjectDirPath
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	cachePath := filepath.Join(homeDir, "/.m2/repository")
 	id, err := d.cli.RunContainer(ctx, &entity.DockerCreateConfig{
@@ -71,11 +75,7 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 	})
 	if err != nil {
 		logrus.Errorf("[Docker DAO][RunCompileContainer] call client.RunContainer error: %+v", err)
-		return nil, err
-	}
-
-	removeFn := func() error {
-		return d.cli.RemoveContainer(ctx, id)
+		return "", err
 	}
 
 	doneCh := make(chan struct{})
@@ -87,7 +87,7 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 		Build()
 	reader, err := d.cli.ExecuteContainer(ctx, id, commands)
 	if err != nil {
-		return removeFn, err
+		return id, err
 	}
 	go func() {
 		defer func() {
@@ -122,5 +122,5 @@ func (d *DaoImpl) CompileAndRun(ctx context.Context, info *entity.AppInfo, stdou
 			finished = true
 		}
 	}
-	return removeFn, nil
+	return id, nil
 }

@@ -31,6 +31,9 @@ func (d *DaoImpl) getConditions(filter *dbm.TestcaseFilter) []gen.Condition {
 	if filter == nil {
 		return conditions
 	}
+	if len(filter.Paths) > 0 {
+		conditions = append(conditions, t.Path.In(filter.Paths...))
+	}
 	if len(filter.Names) > 0 {
 		conditions = append(conditions, t.Name.In(filter.Names...))
 	}

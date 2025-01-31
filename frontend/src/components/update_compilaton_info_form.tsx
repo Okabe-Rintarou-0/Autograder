@@ -1,4 +1,4 @@
-import { Form, Select } from "antd";
+import { Button, Form, Select } from "antd";
 import useMessage from "antd/es/message/useMessage";
 import { useContext, useEffect } from "react";
 import { SUPPORTED_JDK_VERSIONS } from "../lib/config";
@@ -44,8 +44,8 @@ export default function UpdateCompilationInfoForm(props: ModalChildrenProps) {
             preserve={false}
         >
             <Form.Item
-                key="jdkVersion"
-                name="jdkVersion"
+                key="jdk_version"
+                name="jdk_version"
                 label="JDK 版本"
                 rules={[{ required: true }]}
             >
@@ -54,8 +54,8 @@ export default function UpdateCompilationInfoForm(props: ModalChildrenProps) {
                 </Select>
             </Form.Item>
             <Form.Item
-                key="authenticationType"
-                name="authenticationType"
+                key="authentication_type"
+                name="authentication_type"
                 label="鉴权方式"
                 rules={[{ required: true }]}
             >
@@ -63,6 +63,11 @@ export default function UpdateCompilationInfoForm(props: ModalChildrenProps) {
                     <Option value={1}>Cookies</Option>
                     <Option value={2}>Token</Option>
                 </Select>
+            </Form.Item>
+            <Form.Item>
+                <Button type="primary" htmlType="submit">
+                    提交
+                </Button>
             </Form.Item>
         </Form>
     </>

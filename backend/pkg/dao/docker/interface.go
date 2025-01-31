@@ -7,8 +7,7 @@ import (
 	"autograder/pkg/model/entity"
 )
 
-type ContainerRemoveFn func() error
-
 type DAO interface {
-	CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.WriteCloser) (ContainerRemoveFn, error)
+	CompileAndRun(ctx context.Context, info *entity.AppInfo, stdoutWriter, stderrWriter io.WriteCloser) (string, error)
+	RemoveContainer(ctx context.Context, containerID string) error
 }

@@ -20,7 +20,6 @@ import (
 
 	"autograder/pkg/config"
 	"autograder/pkg/dao"
-	"autograder/pkg/dao/docker"
 	"autograder/pkg/model/assembler"
 	"autograder/pkg/model/dbm"
 	"autograder/pkg/model/entity"
@@ -107,14 +106,14 @@ func (s *ServiceImpl) updateTaskByTestResults(model *dbm.AppRunTask, testResults
 	}
 }
 
-func (s *ServiceImpl) cleanup(ctx context.Context, info *entity.AppInfo, removeFn docker.ContainerRemoveFn) {
-	logrus.Info("[TaskService][RunApp] post running, remove the container")
+func (s *ServiceImpl) cleanup(ctx context.Context, info *entity.AppInfo, containerID *string) {
 	err := s.groupDAO.FileDAO.Cleanup(ctx, info)
 	if err != nil {
 		logrus.Warnf("[TaskService][RunApp] post running, call FileDAO.Cleanup error %+v", err)
 	}
-	if removeFn != nil {
-		if err = removeFn(); err != nil {
+	if containerID != nil {
+		logrus.Infof("[TaskService][RunApp] post running, remove the container(%s)", *containerID)
+		if err = s.groupDAO.DockerDAO.RemoveContainer(ctx, *containerID); err != nil {
 			logrus.Warnf("[TaskService][RunApp] post running, remove container error %+v", err)
 		}
 	}
@@ -139,7 +138,9 @@ func (s *ServiceImpl) runAllTests(ctx context.Context, info *entity.AppInfo, tes
 		return "", nil, err
 	}
 
-	for _, testcase := range testcases {
+	for i, testcase := range testcases {
+		title := fmt.Sprintf("测试用例%d: %s\n", i, testcase.Name)
+		_, _ = writer.Write([]byte(title))
 		args := []string{"--report-json", reportDir, "--test"}
 		command := exec.Command("hurl", args...)
 		command.Stdin = strings.NewReader(testcase.Content)
@@ -147,9 +148,9 @@ func (s *ServiceImpl) runAllTests(ctx context.Context, info *entity.AppInfo, tes
 		command.Stderr = writer
 		if err = command.Run(); err != nil {
 			logrus.Errorf("[TaskService][RunAllTests] call hurl.Run err: %+v", err)
-			continue
+		} else {
+			logrus.Infof("[TaskService][RunAllTests] call hurl.Run success %s", utils.FormatJsonString(testcase))
 		}
-		logrus.Infof("[TaskService][RunAllTests] call hurl.Run success %s", utils.FormatJsonString(testcase))
 	}
 
 	file, err := os.Open(reportJsonPath)
@@ -165,15 +166,20 @@ func (s *ServiceImpl) runAllTests(ctx context.Context, info *entity.AppInfo, tes
 
 	var results []*entity.HurlTestResult
 	err = json.Unmarshal(bytes, &results)
+
+	for i, result := range results {
+		result.Filename = testcases[i].Name
+	}
+
 	return string(bytes), results, err
 }
 
 func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	var (
-		removeFn docker.ContainerRemoveFn
-		err      error
+		containerIDPtr = utils.Pointer("")
+		err            error
 	)
-	defer s.cleanup(ctx, info, removeFn)
+	defer s.cleanup(ctx, info, containerIDPtr)
 	err = s.groupDAO.FileDAO.Unzip(ctx, info)
 	if err != nil {
 		logrus.Errorf("[TaskService][RunApp] call FileDAO.Unzip error %+v", err)
@@ -186,11 +192,12 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 		return err
 	}
 
-	removeFn, err = s.groupDAO.DockerDAO.CompileAndRun(ctx, info, stdout, stderr)
+	containerID, err := s.groupDAO.DockerDAO.CompileAndRun(ctx, info, stdout, stderr)
 	if err != nil {
 		logrus.Errorf("[TaskService][RunApp] call DockerDAO.CompileAndRun error %+v", err)
 		return err
 	}
+	*containerIDPtr = containerID
 
 	testcaseFiles, err := utils.GetAllFileNames(config.Instance.TestcasesDir, ".hurl")
 	if err != nil {
@@ -199,7 +206,7 @@ func (s *ServiceImpl) RunApp(ctx context.Context, info *entity.AppInfo) error {
 	}
 
 	testcases, err := s.groupDAO.TestcaseDAO.FindAll(ctx, &dbm.TestcaseFilter{
-		Names:  testcaseFiles,
+		Paths:  testcaseFiles,
 		Status: utils.Pointer(dbm.Active),
 	})
 	if err != nil {

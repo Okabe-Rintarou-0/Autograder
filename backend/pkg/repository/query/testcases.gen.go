@@ -32,6 +32,7 @@ func newTestcase(db *gorm.DB, opts ...gen.DOOption) testcase {
 	_testcase.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_testcase.DeletedAt = field.NewField(tableName, "deleted_at")
 	_testcase.Name = field.NewString(tableName, "name")
+	_testcase.Path = field.NewString(tableName, "path")
 	_testcase.Status = field.NewInt32(tableName, "status")
 	_testcase.Content = field.NewString(tableName, "content")
 
@@ -49,6 +50,7 @@ type testcase struct {
 	UpdatedAt field.Time
 	DeletedAt field.Field
 	Name      field.String
+	Path      field.String
 	Status    field.Int32
 	Content   field.String
 
@@ -72,6 +74,7 @@ func (t *testcase) updateTableName(table string) *testcase {
 	t.UpdatedAt = field.NewTime(table, "updated_at")
 	t.DeletedAt = field.NewField(table, "deleted_at")
 	t.Name = field.NewString(table, "name")
+	t.Path = field.NewString(table, "path")
 	t.Status = field.NewInt32(table, "status")
 	t.Content = field.NewString(table, "content")
 
@@ -98,12 +101,13 @@ func (t *testcase) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *testcase) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 7)
+	t.fieldMap = make(map[string]field.Expr, 8)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["created_at"] = t.CreatedAt
 	t.fieldMap["updated_at"] = t.UpdatedAt
 	t.fieldMap["deleted_at"] = t.DeletedAt
 	t.fieldMap["name"] = t.Name
+	t.fieldMap["path"] = t.Path
 	t.fieldMap["status"] = t.Status
 	t.fieldMap["content"] = t.Content
 }
